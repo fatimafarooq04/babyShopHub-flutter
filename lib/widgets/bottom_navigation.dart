@@ -16,26 +16,16 @@ class _BottomNavigationState extends State<BottomNavigation> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(70),
-          child: BottomNavigationBar(
-            backgroundColor: AppConstants.primaryColor,
-            currentIndex: bottomNavController.selectedIndex.value,
-            onTap: bottomNavController.changeIndex,
-            items: [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.search),
-                label: 'Search',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
-              ),
-            ],
-          ),
+      () => ClipRRect(
+        child: BottomNavigationBar(
+          backgroundColor: AppConstants.primaryColor,
+          currentIndex: bottomNavController.selectedIndex.value,
+          onTap: bottomNavController.changeIndex,
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          ],
         ),
       ),
     );
