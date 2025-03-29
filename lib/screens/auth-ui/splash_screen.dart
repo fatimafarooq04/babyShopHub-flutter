@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // wait for 5 sec navigate to next page
     super.initState();
     Timer(Duration(seconds: 5), () {
-      Get.toNamed('/Signup');
+      Get.toNamed('/mainPage');
     });
   }
 

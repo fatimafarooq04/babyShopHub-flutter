@@ -8,6 +8,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+
+  // google signin controller 
 class GoogleSigninController extends GetxController {
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
@@ -16,16 +18,14 @@ class GoogleSigninController extends GetxController {
     clientId:
         "943196912822-eod54qv62d480gpkg0n584j2gjg6mplt.apps.googleusercontent.com",
   );
-  // call device token controller
-  // DevicetokenController _devicetokenController =
-  //     Get.find<DevicetokenController>();
+//  Method for signin with google 
   Future<void> googleSignInAccount() async {
     try {
       GoogleAuthProvider googleProvider = GoogleAuthProvider();
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithPopup(googleProvider);
       User? user = userCredential.user;
-
+// check if user is not null then signin
       if (user != null) {
         EasyLoading.show(status: 'loading');
         log("Signed in as: ${user.email}");
@@ -36,7 +36,7 @@ class GoogleSigninController extends GetxController {
 
         //  Get the device token
         await devicetokenController.getDeviceToken();
-
+        // call model 
         UserModel userModel = UserModel(
           id: user.uid,
           username: user.displayName.toString(),
@@ -49,6 +49,7 @@ class GoogleSigninController extends GetxController {
           createdOn: DateTime.now(),
           userDeviceToken: devicetokenController.deviceToken.value,
         );
+// add data to database with model 
 
         await firebaseFirestore
             .collection('user')

@@ -1,8 +1,8 @@
-import 'package:babyshop/controllers/google_signin_controller.dart';
-import 'package:babyshop/controllers/signup_controller.dart';
+import 'package:babyshop/controllers/authControllers/google_signin_controller.dart';
+import 'package:babyshop/controllers/authControllers/signup_controller.dart';
 import 'package:babyshop/utilis/app_constants.dart';
-import 'package:babyshop/widgets/custombutton.dart';
-import 'package:babyshop/widgets/ui_helper.dart';
+import 'package:babyshop/screens/user-panel/userWidget/custombutton.dart';
+import 'package:babyshop/screens/user-panel/userWidget/ui_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';

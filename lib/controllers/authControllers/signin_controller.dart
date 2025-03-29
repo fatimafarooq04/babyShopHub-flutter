@@ -1,31 +1,40 @@
 import 'dart:developer';
 
-import 'package:babyshop/controllers/user_data_controller.dart';
+import 'package:babyshop/controllers/authControllers/user_data_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
-import '../utilis/app_constants.dart';
+import '../../utilis/app_constants.dart';
 
+// signin controller with email
 class SigninController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Method for signin controller
   Future<UserCredential?> signInMethod(String email, String password) async {
     try {
+      // loader
       EasyLoading.show(status: 'loading');
+      // signin with credential
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+      // get user data controller to check if user exist or not for signin
       final GetUserDataController userDataController =
           Get.find<GetUserDataController>();
+      // store id in var
       var userData = await userDataController.getUserData(
         userCredential.user!.uid,
       );
       // log('Fetched userData: $userData');
-
+      // check if user is not null
       if (userCredential.user != null) {
+        // check if email is verfied
         if (userCredential.user!.emailVerified) {
+          // check if role is admin then go to admin dashboard
           if (userData.isNotEmpty && userData[0]['role'] == 'admin') {
             Get.snackbar(
               'Login Successful',
@@ -37,6 +46,7 @@ class SigninController extends GetxController {
             EasyLoading.dismiss();
             Get.toNamed('/admin');
           } else {
+            // by default role is user then go to user panel 
             Get.snackbar(
               'Login Successful',
               'Welcome back!',

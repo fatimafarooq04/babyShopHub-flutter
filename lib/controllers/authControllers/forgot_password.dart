@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
-import '../utilis/app_constants.dart';
+import '../../utilis/app_constants.dart';
+
+// Forgot password controller
 
 class ForgotPasswordController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  // Method to get email when click on button for forgot paassword
   Future<void> forgotPassword(String email) async {
     try {
       EasyLoading.show(status: 'Please wait');

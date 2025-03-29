@@ -53,7 +53,7 @@ dependencies:
   flutter_easyloading: ^3.0.5
   # To get device token to send push notification
   firebase_messaging: ^15.2.4
-
+  stylish_bottom_bar: ^1.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

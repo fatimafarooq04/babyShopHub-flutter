@@ -35,7 +35,7 @@ class UserModel {
       'id': id,
       'username': username,
       'email': email,
-      'password': password,
+      'password': password  ,
       'profileimg': profileimg,
       'role': role,
       'userDeviceToken': userDeviceToken,

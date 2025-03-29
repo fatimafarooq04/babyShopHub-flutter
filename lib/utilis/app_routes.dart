@@ -1,3 +1,5 @@
+import 'package:babyshop/screens/admin-panel/Category.dart';
+import 'package:babyshop/screens/admin-panel/alluser.dart';
 import 'package:babyshop/screens/admin-panel/main_dashboard_screen.dart';
 import 'package:babyshop/screens/auth-ui/forgot_password.dart';
 import 'package:babyshop/screens/auth-ui/signin_screen.dart';
@@ -9,7 +11,7 @@ import 'package:get/get_navigation/get_navigation.dart';
 class AppRoutes {
   static final pages = [
     // user routes
-    GetPage(name: '/', page: () => MainScreen()),
+    GetPage(name: '/', page: () => SplashScreen()),
     GetPage(name: '/Signup', page: () => SignUp()),
     GetPage(name: '/Signin', page: () => SigninScreen()),
     GetPage(name: '/forgotPassword', page: () => ForgotPassword()),
@@ -17,5 +19,8 @@ class AppRoutes {
 
     // admin routes
     GetPage(name: '/admin', page: () => MainDashboardScreen()),
+    GetPage(name: '/allUser', page: ()=>Alluser()),
+    GetPage(name: '/category', page: ()=>Category())
+
   ];
 }

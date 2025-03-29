@@ -1,10 +1,13 @@
-import 'package:babyshop/controllers/bottom_nav_controller.dart';
+import 'package:babyshop/controllers/adminController/categoryAdd.dart';
+import 'package:babyshop/controllers/adminController/fetch_all_users.dart';
+import 'package:babyshop/controllers/authControllers/get_current_user_controller.dart';
+import 'package:babyshop/controllers/userControllers/bottom_nav_controller.dart';
 import 'package:babyshop/controllers/devicetoken_controller.dart';
-import 'package:babyshop/controllers/forgot_password.dart';
-import 'package:babyshop/controllers/google_signin_controller.dart';
-import 'package:babyshop/controllers/signin_controller.dart';
-import 'package:babyshop/controllers/signup_controller.dart';
-import 'package:babyshop/controllers/user_data_controller.dart';
+import 'package:babyshop/controllers/authControllers/forgot_password.dart';
+import 'package:babyshop/controllers/authControllers/google_signin_controller.dart';
+import 'package:babyshop/controllers/authControllers/signin_controller.dart';
+import 'package:babyshop/controllers/authControllers/signup_controller.dart';
+import 'package:babyshop/controllers/authControllers/user_data_controller.dart';
 import 'package:babyshop/firebase_options.dart';
 import 'package:babyshop/utilis/app_routes.dart';
 import 'package:device_preview/device_preview.dart';
@@ -17,7 +20,7 @@ import 'package:get/get.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // create instances for controller
+  // Initialize the user controller
   Get.put(GoogleSigninController());
   Get.put(SignupController());
   Get.put(SigninController());
@@ -25,6 +28,14 @@ void main() async {
   Get.put(DevicetokenController());
   Get.put(GetUserDataController());
   Get.put(BottomNavController());
+  Get.put(GetCurrentUserController());
+
+  // initialize the admin panel controller
+  Get.put(FetchAllUsers());
+  Get.put(Categoryadd());
+
+
+
   runApp(DevicePreview(enabled: !kReleaseMode, builder: (context) => MyApp()));
 }
 

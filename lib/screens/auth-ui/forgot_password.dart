@@ -1,6 +1,6 @@
-import 'package:babyshop/controllers/forgot_password.dart';
-import 'package:babyshop/widgets/custombutton.dart';
-import 'package:babyshop/widgets/ui_helper.dart';
+import 'package:babyshop/controllers/authControllers/forgot_password.dart';
+import 'package:babyshop/screens/user-panel/userWidget/custombutton.dart';
+import 'package:babyshop/screens/user-panel/userWidget/ui_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
