@@ -11,6 +11,8 @@ class GetCurrentUserController extends GetxController {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   Rx<User?> firebaseUser = Rx<User?>(FirebaseAuth.instance.currentUser);
   Rx<String> userName = ''.obs;
+  Rx<String> profileImg = ''.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -28,6 +30,7 @@ class GetCurrentUserController extends GetxController {
           await firestore.collection('user').doc(userId).get();
       if (userDoc.exists) {
         userName.value = userDoc['username'] ?? 'No name';
+        profileImg.value = userDoc['profileimg'] ?? '';
       }
     } catch (e) {
       log('Error $e');
@@ -36,5 +39,4 @@ class GetCurrentUserController extends GetxController {
 
   String get userId => firebaseUser.value?.uid ?? "";
   String get userEmail => firebaseUser.value?.email ?? "No Email";
-  dynamic get userProfile => firebaseUser.value?.photoURL ?? "No Picture";
 }

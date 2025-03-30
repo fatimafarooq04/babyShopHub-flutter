@@ -1,6 +1,7 @@
 import 'package:babyshop/screens/admin-panel/Category.dart';
 import 'package:babyshop/screens/admin-panel/alluser.dart';
 import 'package:babyshop/screens/admin-panel/main_dashboard_screen.dart';
+import 'package:babyshop/screens/admin-panel/product.dart';
 import 'package:babyshop/screens/auth-ui/forgot_password.dart';
 import 'package:babyshop/screens/auth-ui/signin_screen.dart';
 import 'package:babyshop/screens/auth-ui/signup_screen.dart';
@@ -20,7 +21,9 @@ class AppRoutes {
     // admin routes
     GetPage(name: '/admin', page: () => MainDashboardScreen()),
     GetPage(name: '/allUser', page: ()=>Alluser()),
-    GetPage(name: '/category', page: ()=>Category())
+    GetPage(name: '/category', page: ()=>Category()),
+    GetPage(name: '/product', page: ()=>Product())
+
 
   ];
 }

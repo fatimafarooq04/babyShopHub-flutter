@@ -10,10 +10,6 @@ class Adminhomescreen extends StatefulWidget {
 class _AdminhomescreenState extends State<Adminhomescreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text('This is center'),
-      ),
-    );
+    return Scaffold(body: Center(child: Text('This is center')));
   }
 }

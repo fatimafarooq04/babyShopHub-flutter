@@ -1,4 +1,5 @@
 import 'package:babyshop/controllers/authControllers/get_current_user_controller.dart';
+import 'package:babyshop/screens/admin-panel/adminCustom%20Widget/uihelper.dart';
 import 'package:babyshop/utilis/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,28 +27,27 @@ class _AppDrawerState extends State<AppDrawer> {
               accountName: Text('Username: ${userController.userName}'),
               accountEmail: Text('Email: ${userController.userEmail}'),
               currentAccountPicture: CircleAvatar(
-                backgroundImage:
-                    userController.userProfile != null
-                        ? NetworkImage(userController.userProfile)
-                        : null,
-                child:
-                    userController.firebaseUser.value?.photoURL == null
-                        ? Icon(Icons.person, size: 40)
-                        : null,
+                backgroundColor: Colors.grey.shade300,
+                backgroundImage: NetworkImage(userController.profileImg.value),
               ),
             ),
-            ListTile(
-              title: Text('Fetch Register User'),
-              onTap: () {
-                Get.toNamed('/allUser');
-              },
-            ),
-            ListTile(
-              title: Text('Category'),
-              onTap: () {
-                Get.toNamed('/category');
-              },
-            ),
+            // custom widget
+            getListTile(Icons.dashboard, 'Dashboard', () {
+              Get.toNamed('/admin');
+            }),
+            Divider(),
+            getListTile(Icons.person, 'Register user', () {
+              Get.toNamed('/allUser');
+            }),
+            Divider(),
+
+            getListTile(Icons.category, 'Category', () {
+              Get.toNamed('/category');
+            }),
+            Divider(),
+            getListTile(Icons.production_quantity_limits, 'Product', () {
+              Get.toNamed('/product');
+            }),
           ],
         ),
       );

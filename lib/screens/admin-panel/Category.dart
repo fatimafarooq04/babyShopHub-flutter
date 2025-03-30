@@ -1,4 +1,4 @@
-import 'package:babyshop/controllers/adminController/categoryAdd.dart';
+import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/screens/admin-panel/adminCustom%20Widget/drawer.dart';
 import 'package:babyshop/screens/user-panel/userWidget/ui_helper.dart';
 import 'package:babyshop/utilis/app_constants.dart';
@@ -31,7 +31,8 @@ class _CategoryState extends State<Category> {
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
-        backgroundColor: AppConstants.primaryColor,
+        backgroundColor: AppConstants.buttonBg,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       drawer: AppDrawer(),
       body: Obx(
@@ -146,7 +147,7 @@ class _CategoryState extends State<Category> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.secondarycolor,
             ),
-            child: Text('Add', style: TextStyle(color: Colors.white)),
+            child: Text('Add category', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -161,6 +162,29 @@ class _CategoryState extends State<Category> {
       (c) => c.id == categoryId,
     );
     categoryEdit.text = category.categoryName;
+    void editData() async {
+      var newCategory = categoryEdit.text.trim();
+      if (newCategory.isNotEmpty) {
+        await categoryadd.editCategory(categoryId, newCategory);
+        Get.back();
+        Get.snackbar(
+          'Category Update',
+          'Category updated successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppConstants.buttonBg,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          'Category not updated',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppConstants.buttonBg,
+          colorText: Colors.white,
+        );
+      }
+    }
+
     Get.dialog(
       AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -177,7 +201,9 @@ class _CategoryState extends State<Category> {
             child: Text('cancel', style: TextStyle(color: Colors.red)),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              editData();
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.secondarycolor,
             ),

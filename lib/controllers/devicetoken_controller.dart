@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
-// device token controller to get token for push notification 
+// FCM (Firebase Cloud Messaging) device token controller to get token for push notification 
 class DevicetokenController extends GetxController {
   RxString deviceToken = ''.obs;
 

@@ -6,10 +6,9 @@ import 'package:get/get.dart';
 class Categoryadd extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // ✅ Ensure type safety in RxList
   RxList<CategoryModel> categoryList = <CategoryModel>[].obs;
 
-  // ✅ Fix: Add category and store Firestore ID
+  //  Add category and store Firestore ID
   Future<void> categoryAdd(String categoryName) async {
     try {
       DocumentReference docRef = await _firestore.collection('Category').add({
@@ -19,14 +18,13 @@ class Categoryadd extends GetxController {
       // Update document to include its ID
       await docRef.update({'id': docRef.id});
 
-      log('Category added successfully with ID: ${docRef.id}');
-      fetchCategory(); // Refresh category list
+      fetchCategory();
     } catch (e) {
       log('Error adding category: $e');
     }
   }
 
-  // ✅ Fix: Fetch categories and include Firestore ID
+  // Fetch categories
   Future<void> fetchCategory() async {
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot =
@@ -39,6 +37,17 @@ class Categoryadd extends GetxController {
       log("Categories fetched: ${categoryList.length}");
     } catch (e) {
       log('Error fetching categories: $e');
+    }
+  }
+
+  Future<void> editCategory(String id, String categoryNew) async {
+    try {
+      await _firestore.collection('Category').doc(id).update({
+        'categoryName': categoryNew,
+      });
+      fetchCategory();
+    } catch (e) {
+      log('Error $e');
     }
   }
 }

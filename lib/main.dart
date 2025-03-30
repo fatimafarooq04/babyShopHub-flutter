@@ -1,5 +1,6 @@
-import 'package:babyshop/controllers/adminController/categoryAdd.dart';
+import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/controllers/adminController/fetch_all_users.dart';
+import 'package:babyshop/controllers/adminController/product_controller.dart';
 import 'package:babyshop/controllers/authControllers/get_current_user_controller.dart';
 import 'package:babyshop/controllers/userControllers/bottom_nav_controller.dart';
 import 'package:babyshop/controllers/devicetoken_controller.dart';
@@ -33,6 +34,8 @@ void main() async {
   // initialize the admin panel controller
   Get.put(FetchAllUsers());
   Get.put(Categoryadd());
+  Get.put(ProductController());
+
 
 
 
@@ -47,9 +50,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(primarySwatch: Colors.pink),
       initialRoute: '/',
       getPages: AppRoutes.pages,
+      // loader initialize 
       builder: EasyLoading.init(),
     );
   }
