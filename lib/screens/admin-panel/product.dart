@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/controllers/adminController/product_controller.dart';
+import 'package:babyshop/models/category_model.dart';
+import 'package:babyshop/screens/admin-panel/Category.dart';
 import 'package:babyshop/screens/admin-panel/adminCustom%20Widget/drawer.dart';
 import 'package:babyshop/screens/user-panel/userWidget/custombutton.dart';
 import 'package:babyshop/screens/user-panel/userWidget/ui_helper.dart';
@@ -19,6 +22,7 @@ class Product extends StatefulWidget {
 class _ProductState extends State<Product> {
   // find product controller
   ProductController productController = Get.find<ProductController>();
+  Categoryadd category = Get.find<Categoryadd>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,11 +110,15 @@ class _ProductState extends State<Product> {
                                 ]).call,
                           ),
                           spacer(),
+                          // Obx(()=>DropdownButton<CategoryModel>(
+                          //   // value: category.,
+                          //   items: [], onChanged: (value) {}),),
                           Custombutton(
                             onPressed: () {
                               productController.pickImage();
                             },
                             text: 'Select images',
+
                             width: 200,
                           ),
                           spacer(),

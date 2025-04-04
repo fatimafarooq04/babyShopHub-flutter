@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/screens/admin-panel/adminCustom%20Widget/drawer.dart';
 import 'package:babyshop/screens/user-panel/userWidget/ui_helper.dart';
@@ -65,7 +67,14 @@ class _CategoryState extends State<Category> {
                             horizontal: 16,
                             vertical: 10,
                           ),
-                          leading: CircleAvatar(child: Text('${index + 1}')),
+                          leading:
+                              category.categoryImage.isNotEmpty
+                                  ? CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                      category.categoryImage,
+                                    ),
+                                  )
+                                  : Icon(Icons.person),
                           title: Text(
                             category.categoryName,
                             style: TextStyle(
@@ -103,7 +112,7 @@ class _CategoryState extends State<Category> {
     // add category function
     void addCategory() {
       String categoryName = categoryname.text.trim();
-      if (categoryName.isNotEmpty) {
+      if (categoryName.isNotEmpty && categoryadd.selectImage.isNotEmpty) {
         categoryadd.categoryAdd(categoryName);
         Get.back();
         Get.snackbar(
@@ -128,11 +137,42 @@ class _CategoryState extends State<Category> {
     Get.dialog(
       AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text(
-          'Add Category',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Form(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Text(
+                  'Add Category',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
         ),
-        content: getTextFormField(categoryname, 'Enter category name'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: () {
+                categoryadd.selectedImage();
+              },
+              child: Obx(
+                () => CircleAvatar(
+                  radius: 40,
+                  backgroundImage:
+                      categoryadd.selectImage.isNotEmpty
+                          ? NetworkImage(categoryadd.selectImage.first.path)
+                          : null,
+                  child:
+                      categoryadd.selectImage.isEmpty
+                          ? Icon(Icons.add_a_photo, color: Colors.grey[700])
+                          : null,
+                ),
+              ),
+            ),
+            getTextFormField(categoryname, 'Enter category name'),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -147,7 +187,11 @@ class _CategoryState extends State<Category> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.secondarycolor,
             ),
-            child: Text('Add category', style: TextStyle(color: Colors.white)),
+            child: Column(
+              children: [
+                Text('Add category', style: TextStyle(color: Colors.white)),
+              ],
+            ),
           ),
         ],
       ),
@@ -162,10 +206,19 @@ class _CategoryState extends State<Category> {
       (c) => c.id == categoryId,
     );
     categoryEdit.text = category.categoryName;
+    final String? intitalImage =
+        category.categoryImage.isNotEmpty ? category.categoryImage : null;
+    // log('$intitalImage');
     void editData() async {
       var newCategory = categoryEdit.text.trim();
       if (newCategory.isNotEmpty) {
-        await categoryadd.editCategory(categoryId, newCategory);
+        await categoryadd.editCategory(
+          categoryId,
+          newCategory,
+          categoryadd.selectImage.isNotEmpty
+              ? categoryadd.selectImage.first.path
+              : intitalImage.toString(),
+        );
         Get.back();
         Get.snackbar(
           'Category Update',
@@ -192,7 +245,31 @@ class _CategoryState extends State<Category> {
           'Edit Category',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: getTextFormField(categoryEdit, 'Category'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: categoryadd.selectedImage,
+              child: Obx(
+                () => CircleAvatar(
+                  radius: 50,
+                  backgroundImage:
+                      categoryadd.selectImage.isNotEmpty
+                          ? NetworkImage(categoryadd.selectImage.first.path)
+                          : intitalImage != null
+                          ? NetworkImage(intitalImage)
+                          : null,
+                  child:
+                      categoryadd.selectImage.isEmpty && intitalImage == null
+                          ? Icon(Icons.add_a_photo)
+                          : null,
+                ),
+              ),
+            ),
+            spacer(),
+            getTextFormField(categoryEdit, 'Category'),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () {

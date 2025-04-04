@@ -1,17 +1,14 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-
-// Controller to get current user information when signin
 
 class GetCurrentUserController extends GetxController {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   Rx<User?> firebaseUser = Rx<User?>(FirebaseAuth.instance.currentUser);
-  Rx<String> userName = ''.obs;
-  Rx<String> profileImg = ''.obs;
+  RxString userName = ''.obs;
+  RxString profileImg = ''.obs;
 
   @override
   void onInit() {
@@ -24,16 +21,27 @@ class GetCurrentUserController extends GetxController {
     });
   }
 
-  Future<void> fetchCurrentUser(String userId) async {
+  Future<List<Map<String, dynamic>>> fetchCurrentUser(String userId) async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> userDoc =
+      DocumentSnapshot userDoc =
           await firestore.collection('user').doc(userId).get();
+      print("🔥 Fetching user from Firestore for ID: $userId");
+
       if (userDoc.exists) {
-        userName.value = userDoc['username'] ?? 'No name';
-        profileImg.value = userDoc['profileimg'] ?? '';
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        print("✅ User Data: $userData");
+
+        userName.value = userData['username'] ?? 'No name';
+        profileImg.value = userData['profileimg'] ?? '';
+
+        return [userData];
       }
+
+      print("❌ User not found in Firestore");
+      return [];
     } catch (e) {
-      log('Error $e');
+      log('Error fetching user: $e');
+      return [];
     }
   }
 

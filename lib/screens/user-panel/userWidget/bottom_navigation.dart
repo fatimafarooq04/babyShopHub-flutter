@@ -20,13 +20,18 @@ class BottomNavigation extends StatelessWidget {
         unselectedItemColor: const Color.fromARGB(123, 255, 255, 255),
         onTap: controller.changeIndex,
         items: const [
+          // BottomNavigationBarItem(
+          //   icon: Align(
+          //     alignment: Alignment.center,
+          //     child: Icon(Icons.home_outlined),
+          //   ),
+          //   activeIcon: Icon(Icons.home_filled),
+          //   label: 'Home',
+          // ),
           BottomNavigationBarItem(
-            icon: Align(
-              alignment: Alignment.center,
-              child: Icon(Icons.home_outlined),
-            ),
-            activeIcon: Icon(Icons.home_filled),
-            label: 'Home',
+            icon: Icon(Icons.login_outlined),
+            activeIcon: Icon(Icons.login),
+            label: 'product',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search_outlined),
