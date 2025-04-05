@@ -1,16 +1,14 @@
-import 'dart:io';
-
-import 'package:babyshop/controllers/adminController/category_controller.dart';
+import 'dart:developer';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:babyshop/controllers/adminController/product_controller.dart';
+import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/models/category_model.dart';
-import 'package:babyshop/screens/admin-panel/Category.dart';
 import 'package:babyshop/screens/admin-panel/adminCustom%20Widget/drawer.dart';
+import 'package:babyshop/utilis/app_constants.dart';
 import 'package:babyshop/screens/user-panel/userWidget/custombutton.dart';
 import 'package:babyshop/screens/user-panel/userWidget/ui_helper.dart';
-import 'package:babyshop/utilis/app_constants.dart';
-import 'package:flutter/material.dart';
-import 'package:form_field_validator/form_field_validator.dart';
-import 'package:get/get.dart';
 
 class Product extends StatefulWidget {
   const Product({super.key});
@@ -20,9 +18,9 @@ class Product extends StatefulWidget {
 }
 
 class _ProductState extends State<Product> {
-  // find product controller
   ProductController productController = Get.find<ProductController>();
   Categoryadd category = Get.find<Categoryadd>();
+
   @override
   void initState() {
     super.initState();
@@ -44,7 +42,7 @@ class _ProductState extends State<Product> {
       drawer: AppDrawer(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // call add dialog
+          // Call add dialog
           showDialog();
         },
         backgroundColor: AppConstants.buttonBg,
@@ -53,18 +51,36 @@ class _ProductState extends State<Product> {
     );
   }
 
-  // add product dialog
+  // Add product dialog
   void showDialog() {
     GlobalKey<FormState> formkey = GlobalKey<FormState>();
     TextEditingController productName = TextEditingController();
     TextEditingController productDesc = TextEditingController();
     TextEditingController productPrice = TextEditingController();
+    TextEditingController productsalePrice = TextEditingController();
+    void add() {
+      String categoryId =
+          category.selectedCategory.value?.id ??
+          (category.categoryList.isNotEmpty
+              ? category.categoryList.first.id
+              : '');
+      ; // Get category ID
+      productController.productAdd(
+        productName.text.trim(),
+        productDesc.text.trim(),
+        productPrice.text.trim(),
+        productsalePrice.text.trim(),
+        categoryId,
+
+        productController.finalImages,
+      );
+    }
 
     Get.dialog(
       AlertDialog(
         title: Text('Add Product'),
         content: SizedBox(
-          width: 600, // Makes dialog wide on web
+          width: 600,
           child: SingleChildScrollView(
             child: Form(
               key: formkey,
@@ -107,6 +123,20 @@ class _ProductState extends State<Product> {
                           ),
                         ]).call,
                   ),
+                  getTextFormField(
+                    productsalePrice,
+                    'Add product sale price',
+                    validator:
+                        MultiValidator([
+                          RequiredValidator(
+                            errorText: 'This field is required',
+                          ),
+                          PatternValidator(
+                            r'^\d+(\.\d{1,2})?$',
+                            errorText: 'Enter a valid price',
+                          ),
+                        ]).call,
+                  ),
                   spacer(),
 
                   // Category Dropdown
@@ -116,7 +146,8 @@ class _ProductState extends State<Product> {
                         : Container(
                           padding: EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
+                            border: Border.all(color: AppConstants.outline),
+                            color: Color.fromARGB(36, 154, 82, 255),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: DropdownButton<CategoryModel>(
@@ -141,6 +172,7 @@ class _ProductState extends State<Product> {
 
                   spacer(),
 
+                  // Image Selection
                   Custombutton(
                     onPressed: () {
                       productController.pickImage();
@@ -151,7 +183,7 @@ class _ProductState extends State<Product> {
 
                   spacer(),
 
-                  // ✅ Image grid with fixed height
+                  // Display selected images
                   Obx(() {
                     return productController.finalImages.isNotEmpty
                         ? SizedBox(
@@ -189,8 +221,9 @@ class _ProductState extends State<Product> {
           ElevatedButton(
             onPressed: () {
               if (formkey.currentState!.validate()) {
-                // Submit form
-                print("Add Product logic here");
+                // Call productAdd function with category ID
+                add();
+                Get.back();
               }
             },
             style: ElevatedButton.styleFrom(

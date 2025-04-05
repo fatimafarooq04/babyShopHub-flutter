@@ -3,6 +3,8 @@ class ProductModel {
   final String productName;
   final String productDescription;
   final String price;
+  final String? salePrice;
+
   final String categoryId;
 
   final List<String> productImages;
@@ -12,6 +14,7 @@ class ProductModel {
     required this.productName,
     required this.productDescription,
     required this.price,
+    this.salePrice,
     required this.categoryId,
     required this.productImages,
   });
@@ -21,6 +24,7 @@ class ProductModel {
       productName: json['productName'],
       productDescription: json['productDescription'],
       price: json['price'],
+      salePrice: json['salePrice'],
       categoryId: json['categoryId'],
       productImages: List<String>.from(json['productImages']),
     );
@@ -31,6 +35,7 @@ class ProductModel {
       'productName': productName,
       'productDescription': productDescription,
       'price': price,
+      'salePrice': salePrice,
       'categoryId': categoryId,
       'productImages': productImages,
     };
