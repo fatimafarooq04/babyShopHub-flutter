@@ -7,19 +7,16 @@ class ProductController extends GetxController {
   RxList<XFile> finalImages = <XFile>[].obs;
 
   final ImagePicker picker = ImagePicker();
-// pick image function 
+  // pick image function
   Future<void> pickImage() async {
-    // select multiple images 
-    final List<XFile>? selectedImage = await picker.pickMultiImage();
-    if (selectedImage != null && selectedImage.isNotEmpty) {
+    // select multiple images
+    final List<XFile> selectedImage = await picker.pickMultiImage();
+    if (selectedImage.isNotEmpty && selectedImage.isNotEmpty) {
       // print("Selected Images: ${selectedImage.map((e) => e.path).toList()}");
-      // if image is not empty assign it to finalImages list 
+      // if image is not empty assign it to finalImages list
       finalImages.assignAll(selectedImage);
     }
   }
-  
-  Future<void> productAdd()async{
 
-  }
-
+  Future<void> productAdd() async {}
 }

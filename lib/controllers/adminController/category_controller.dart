@@ -12,6 +12,9 @@ class Categoryadd extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   RxList<CategoryModel> categoryList = <CategoryModel>[].obs;
+  // for dropdown category like to fetch category in product page
+  Rx<CategoryModel?> selectedCategory = Rx<CategoryModel?>(null);
+
 
   // image picker
   final ImagePicker picker = ImagePicker();
@@ -49,31 +52,31 @@ class Categoryadd extends GetxController {
   }
 
   //  Add category and store Firestore ID
-  Future<void> categoryAdd(String categoryName) async {
-    try {
-      final imgBytes = await selectImage.first.readAsBytes();
-      String? imageUrl = await imageCloudinary(imgBytes);
-      if (imageUrl == null) return;
-      final category = CategoryModel(
-        id: '',
-        categoryName: categoryName,
-        categoryImage: imageUrl,
-      );
+Future<void> categoryAdd(String categoryName) async {
+  try {
+    final imgBytes = await selectImage.first.readAsBytes();
+    String? uploadedImageUrl = await imageCloudinary(imgBytes);
+    if (uploadedImageUrl == null) return;
 
-      // Then save it to Firestore
-      DocumentReference docRef = await _firestore
-          .collection('Category')
-          .add(category.toMap());
+    final category = CategoryModel(
+      id: '',
+      categoryName: categoryName,
+      categoryImage: uploadedImageUrl,
+    );
 
-      // Update document to include its ID
-      await docRef.update({'id': docRef.id});
-      selectImage.clear();
+    DocumentReference docRef = await _firestore
+        .collection('Category')
+        .add(category.toMap());
 
-      fetchCategory();
-    } catch (e) {
-      log('Error adding category: $e');
-    }
+    await docRef.update({'id': docRef.id});
+    selectImage.clear();
+
+    fetchCategory();
+  } catch (e) {
+    log('Error adding category: $e');
   }
+}
+
 
   // Fetch categories
   Future<void> fetchCategory() async {

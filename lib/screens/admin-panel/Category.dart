@@ -107,7 +107,7 @@ class _CategoryState extends State<Category> {
   }
 
   // add dialog when add button click
-  void showAddCategoryDialog() {
+  void showAddCategoryDialog() async {
     TextEditingController categoryname = TextEditingController();
     // add category function
     void addCategory() {
@@ -125,7 +125,7 @@ class _CategoryState extends State<Category> {
       } else {
         Get.snackbar(
           'Error',
-          'Category name cannot be empty',
+          'Category name or image missing',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: AppConstants.buttonBg,
           colorText: Colors.white,
@@ -165,7 +165,7 @@ class _CategoryState extends State<Category> {
                           : null,
                   child:
                       categoryadd.selectImage.isEmpty
-                          ? Icon(Icons.add_a_photo, color: Colors.grey[700])
+                          ? Icon(Icons.add_a_photo)
                           : null,
                 ),
               ),
@@ -255,7 +255,7 @@ class _CategoryState extends State<Category> {
                   radius: 50,
                   backgroundImage:
                       categoryadd.selectImage.isNotEmpty
-                          ? NetworkImage(categoryadd.selectImage.first.path)
+                          ? NetworkImage(category.categoryImage)
                           : intitalImage != null
                           ? NetworkImage(intitalImage)
                           : null,
