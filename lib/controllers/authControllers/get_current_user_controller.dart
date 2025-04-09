@@ -17,6 +17,11 @@ class GetCurrentUserController extends GetxController {
       firebaseUser.value = user;
       if (user != null) {
         fetchCurrentUser(user.uid);
+      } else {
+        // Clear user data when logging out
+
+        userName.value = '';
+        profileImg.value = '';
       }
     });
   }
@@ -25,11 +30,11 @@ class GetCurrentUserController extends GetxController {
     try {
       DocumentSnapshot userDoc =
           await firestore.collection('user').doc(userId).get();
-      print("🔥 Fetching user from Firestore for ID: $userId");
+      print(" Fetching user from Firestore for ID: $userId");
 
       if (userDoc.exists) {
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-        print("✅ User Data: $userData");
+        print(" User Data: $userData");
 
         userName.value = userData['username'] ?? 'No name';
         profileImg.value = userData['profileimg'] ?? '';
@@ -37,7 +42,7 @@ class GetCurrentUserController extends GetxController {
         return [userData];
       }
 
-      print("❌ User not found in Firestore");
+      print(" User not found in Firestore");
       return [];
     } catch (e) {
       log('Error fetching user: $e');

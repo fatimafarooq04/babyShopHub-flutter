@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:babyshop/models/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -65,13 +66,16 @@ class ProductController extends GetxController {
     String productPrice,
     String salePrice,
     String categoryId,
+    String brandId,
     RxList<XFile> productImages,
   ) async {
     try {
+      EasyLoading.show(status: 'Please wait');
       if (productName.isNotEmpty &&
           productDescription.isNotEmpty &&
           productPrice.isNotEmpty &&
           categoryId.isNotEmpty &&
+          brandId.isNotEmpty &&
           productImages.isNotEmpty) {
         List<String> imageUrls = [];
 
@@ -81,12 +85,10 @@ class ProductController extends GetxController {
           String? uploadedImageUrl = await imageCloudinary(bytes);
 
           if (uploadedImageUrl == null) {
-            return; // If upload failed, stop further processing
+            return;
           }
 
-          imageUrls.add(
-            uploadedImageUrl,
-          ); // Add the uploaded image URL to the list
+          imageUrls.add(uploadedImageUrl);
         }
 
         // Create the product model
@@ -97,6 +99,7 @@ class ProductController extends GetxController {
           price: productPrice,
           salePrice: salePrice,
           categoryId: categoryId,
+          brandId: brandId,
           productImages: imageUrls,
         );
 
@@ -109,14 +112,35 @@ class ProductController extends GetxController {
         await _firestore.collection('products').doc(docRef.id).update({
           'id': docRef.id,
         });
-
+        EasyLoading.dismiss();
         Get.snackbar("Success", "Product uploaded successfully");
       } else {
+        EasyLoading.dismiss();
+
         Get.snackbar('Required', 'All fields are required');
       }
     } catch (e) {
+      EasyLoading.dismiss();
+
       log('Error: $e');
       Get.snackbar('Error', 'An error occurred: $e');
+    }
+  }
+
+  RxList<ProductModel> productsList = <ProductModel>[].obs;
+  Future<void> fetchProducts() async {
+    try {
+      QuerySnapshot snapshot = await _firestore.collection('products').get();
+      productsList.assignAll(
+        snapshot.docs
+            .map(
+              (fp) => ProductModel.fromMap(fp.data() as Map<String, dynamic>),
+            )
+            .toList(),
+      );
+      log('${productsList.length}');
+    } catch (e) {
+      log('$e');
     }
   }
 }

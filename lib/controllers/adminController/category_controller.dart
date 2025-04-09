@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:babyshop/models/category_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +14,6 @@ class Categoryadd extends GetxController {
   RxList<CategoryModel> categoryList = <CategoryModel>[].obs;
   // for dropdown category like to fetch category in product page
   Rx<CategoryModel?> selectedCategory = Rx<CategoryModel?>(null);
-
 
   // image picker
   final ImagePicker picker = ImagePicker();
@@ -52,31 +51,33 @@ class Categoryadd extends GetxController {
   }
 
   //  Add category and store Firestore ID
-Future<void> categoryAdd(String categoryName) async {
-  try {
-    final imgBytes = await selectImage.first.readAsBytes();
-    String? uploadedImageUrl = await imageCloudinary(imgBytes);
-    if (uploadedImageUrl == null) return;
+  Future<void> categoryAdd(String categoryName) async {
+    try {
+      EasyLoading.show(status: 'Please wait');
+      final imgBytes = await selectImage.first.readAsBytes();
+      String? uploadedImageUrl = await imageCloudinary(imgBytes);
+      if (uploadedImageUrl == null) return;
 
-    final category = CategoryModel(
-      id: '',
-      categoryName: categoryName,
-      categoryImage: uploadedImageUrl,
-    );
+      final category = CategoryModel(
+        id: '',
+        name: categoryName,
+        image: uploadedImageUrl,
+      );
 
-    DocumentReference docRef = await _firestore
-        .collection('Category')
-        .add(category.toMap());
+      DocumentReference docRef = await _firestore
+          .collection('Category')
+          .add(category.toMap());
 
-    await docRef.update({'id': docRef.id});
-    selectImage.clear();
+      await docRef.update({'id': docRef.id});
+      selectImage.clear();
+      EasyLoading.dismiss();
+      fetchCategory();
+    } catch (e) {
+      EasyLoading.dismiss();
 
-    fetchCategory();
-  } catch (e) {
-    log('Error adding category: $e');
+      log('Error adding category: $e');
+    }
   }
-}
-
 
   // Fetch categories
   Future<void> fetchCategory() async {
@@ -88,17 +89,21 @@ Future<void> categoryAdd(String categoryName) async {
         snapshot.docs.map((doc) => CategoryModel.fromMap(doc.data())).toList(),
       );
 
-      log("Categories fetched: ${categoryList.length}");
+      // log("Categories fetched: ${categoryList.length}");
     } catch (e) {
       log('Error fetching categories: $e');
     }
   }
 
-  Future<void> editCategory(String id, String categoryNew,String categoryNewImage ) async {
+  Future<void> editCategory(
+    String id,
+    String categoryNew,
+    String categoryNewImage,
+  ) async {
     try {
       await _firestore.collection('Category').doc(id).update({
         'categoryName': categoryNew,
-        'categoryImage':categoryNewImage
+        'categoryImage': categoryNewImage,
       });
       fetchCategory();
     } catch (e) {

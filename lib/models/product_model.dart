@@ -4,9 +4,8 @@ class ProductModel {
   final String productDescription;
   final String price;
   final String? salePrice;
-
   final String categoryId;
-
+  final String brandId;
   final List<String> productImages;
 
   ProductModel({
@@ -16,6 +15,7 @@ class ProductModel {
     required this.price,
     this.salePrice,
     required this.categoryId,
+    required this.brandId,
     required this.productImages,
   });
   factory ProductModel.fromMap(Map<String, dynamic> json) {
@@ -26,6 +26,7 @@ class ProductModel {
       price: json['price'],
       salePrice: json['salePrice'],
       categoryId: json['categoryId'],
+      brandId:json['brandId'],
       productImages: List<String>.from(json['productImages']),
     );
   }
@@ -37,6 +38,7 @@ class ProductModel {
       'price': price,
       'salePrice': salePrice,
       'categoryId': categoryId,
+      'brandId':brandId,
       'productImages': productImages,
     };
   }

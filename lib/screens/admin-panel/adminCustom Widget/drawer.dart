@@ -45,6 +45,10 @@ class _AppDrawerState extends State<AppDrawer> {
               Get.toNamed('/category');
             }),
             Divider(),
+            getListTile(Icons.branding_watermark, 'Brand', () {
+              Get.toNamed('/brand');
+            }),
+            Divider(),
             getListTile(Icons.production_quantity_limits, 'Product', () {
               Get.toNamed('/product');
             }),

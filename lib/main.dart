@@ -1,7 +1,9 @@
+import 'package:babyshop/controllers/adminController/brand_controller.dart';
 import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/controllers/adminController/fetch_all_users.dart';
 import 'package:babyshop/controllers/adminController/product_controller.dart';
 import 'package:babyshop/controllers/authControllers/get_current_user_controller.dart';
+import 'package:babyshop/controllers/authControllers/session_controller.dart';
 import 'package:babyshop/controllers/userControllers/bottom_nav_controller.dart';
 import 'package:babyshop/controllers/devicetoken_controller.dart';
 import 'package:babyshop/controllers/authControllers/forgot_password.dart';
@@ -17,10 +19,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await GetStorage.init(); // for session
+  Get.put(SessionController());
   // Initialize the user controller
   Get.put(GoogleSigninController());
   Get.put(SignupController());
@@ -35,9 +40,7 @@ void main() async {
   Get.put(FetchAllUsers());
   Get.put(Categoryadd());
   Get.put(ProductController());
-
-
-
+  Get.put(BrandController());
 
   runApp(DevicePreview(enabled: !kReleaseMode, builder: (context) => MyApp()));
 }
@@ -52,7 +55,7 @@ class MyApp extends StatelessWidget {
 
       initialRoute: '/',
       getPages: AppRoutes.pages,
-      // loader initialize 
+      // loader initialize
       builder: EasyLoading.init(),
     );
   }

@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:get/get.dart';
+import 'package:babyshop/controllers/userControllers/bottom_nav_controller.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -78,9 +79,51 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
+  // ✅ Fix: Added method to remove "_openDrawer not defined" error
+  void _openDrawer(String type) {
+    // You can customize this behavior later (open drawer/cart/wishlist etc.)
+    Get.snackbar(
+      'Drawer Triggered',
+      'You tapped on $type',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Declare your controller here if you're using GetX
+    final BottomNavController controller = Get.put(BottomNavController());
+
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Babyshophub'),
+        backgroundColor: AppConstants.buttonBg,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.home_outlined),
+            onPressed: () {
+              controller.selectedIndex.value = 0; // Navigate to home
+
+              Get.toNamed('/mainPage'); // Navigate to the SignUp page
+            },
+          ),
+          // IconButton(
+          //   icon: Icon(Icons.favorite_border),
+          //   onPressed: () => _openDrawer('wishlist'),
+          // ),
+          // IconButton(
+          //   icon: Icon(Icons.shopping_cart_outlined),
+          //   onPressed: () => _openDrawer('cart'),
+          // ),
+          IconButton(
+            icon: Icon(Icons.person_outline),
+            onPressed: () {
+              controller.selectedIndex.value = 2; // Navigate to profile/sign-in
+              Get.toNamed('/Signup'); // Navigate to the SignUp page
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -137,7 +180,6 @@ class _SignUpState extends State<SignUp> {
                         getTextFormField(
                           user,
                           'Username',
-
                           validator:
                               (value) => _signupController.validateUsername(
                                 value ?? '',
@@ -217,7 +259,6 @@ class _SignUpState extends State<SignUp> {
                           text: 'Sign Up',
                           width: 400,
                         ),
-
                         spacer(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -254,7 +295,6 @@ class _SignUpState extends State<SignUp> {
                             spacer(),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-
                               children: [
                                 InkWell(
                                   onTap: () {

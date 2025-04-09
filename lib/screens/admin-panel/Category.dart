@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/screens/admin-panel/adminCustom%20Widget/drawer.dart';
 import 'package:babyshop/screens/user-panel/userWidget/ui_helper.dart';
@@ -68,15 +66,15 @@ class _CategoryState extends State<Category> {
                             vertical: 10,
                           ),
                           leading:
-                              category.categoryImage.isNotEmpty
+                              category.image.isNotEmpty
                                   ? CircleAvatar(
                                     backgroundImage: NetworkImage(
-                                      category.categoryImage,
+                                      category.image,
                                     ),
                                   )
                                   : Icon(Icons.person),
                           title: Text(
-                            category.categoryName,
+                            category.name,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -205,9 +203,9 @@ class _CategoryState extends State<Category> {
     var category = categoryadd.categoryList.firstWhere(
       (c) => c.id == categoryId,
     );
-    categoryEdit.text = category.categoryName;
+    categoryEdit.text = category.name;
     final String? intitalImage =
-        category.categoryImage.isNotEmpty ? category.categoryImage : null;
+        category.image.isNotEmpty ? category.image : null;
     // log('$intitalImage');
     void editData() async {
       var newCategory = categoryEdit.text.trim();
@@ -255,7 +253,7 @@ class _CategoryState extends State<Category> {
                   radius: 50,
                   backgroundImage:
                       categoryadd.selectImage.isNotEmpty
-                          ? NetworkImage(category.categoryImage)
+                          ? NetworkImage(category.image)
                           : intitalImage != null
                           ? NetworkImage(intitalImage)
                           : null,
