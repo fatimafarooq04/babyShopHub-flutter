@@ -68,7 +68,7 @@ class BrandController extends GetxController {
   }
 
   RxList<BrandModel> brandList = <BrandModel>[].obs;
-  Rx<BrandModel?> selectedBrand=Rx<BrandModel?>(null);
+  Rx<BrandModel?> selectedBrand = Rx<BrandModel?>(null);
   Future<void> fetchBrands() async {
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot =
@@ -76,9 +76,20 @@ class BrandController extends GetxController {
       brandList.assignAll(
         snapshot.docs.map((b) => BrandModel.fromMap(b.data())).toList(),
       );
-      log('Brand fetch ${brandList.length}');
+      // log('Brand fetch ${brandList.length}');
     } catch (e) {
       log('Error');
+      log('$e');
+    }
+  }
+
+  Future<void> editData(String id, String name, String image) async {
+    try {
+      await firestore.collection('Brands').doc(id).update({
+        'brandName': name,
+        'brandImage': image,
+      });
+    } catch (e) {
       log('$e');
     }
   }

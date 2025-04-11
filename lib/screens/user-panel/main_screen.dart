@@ -378,8 +378,8 @@ class _MainScreenState extends State<MainScreen> {
                               Center(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    print("Tapped on $name");
-                                    print("Tapped on $id");
+                                    // print("Tapped on $name");
+                                    // print("Tapped on $id");
                                     // Get.toNamed('/ClothesScreen');
                                     Get.toNamed(
                                       '/ClothesScreen',

@@ -36,7 +36,7 @@ class _AlluserState extends State<Alluser> {
                         onPressed: () {
                           showModal(user);
                         },
-                        icon: Icon(Icons.edit),
+                        icon: Icon(Icons.remove_red_eye),
                       ),
                     );
                   },
@@ -47,11 +47,6 @@ class _AlluserState extends State<Alluser> {
 
   void showModal(Map<String, dynamic> user) {
     fetchAllUsers.selectedUser.value = user;
-    TextEditingController userName = TextEditingController(
-      text: user['username'],
-    );
-    TextEditingController email = TextEditingController(text: user['email']);
-    TextEditingController role = TextEditingController(text: user['role']);
 
     Get.dialog(
       AlertDialog(
@@ -59,11 +54,9 @@ class _AlluserState extends State<Alluser> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            getTextFormField(userName, 'Username'),
-            spacer(),
-            getTextFormField(email, 'email'),
-            spacer(),
-            getTextFormField(role, 'role'),
+            Text('User name: ${user["username"]},'),
+            Text('email :${user['email']}'),
+            Text('email :${user['email']}'),
           ],
         ),
       ),

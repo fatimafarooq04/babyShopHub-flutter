@@ -75,10 +75,12 @@ class _BrandState extends State<Brand> {
                                   )
                                   : Icon(Icons.branding_watermark),
                           title: Text(
-                            brand.name.isNotEmpty ? brand.name : 'no Nmae',
+                            brand.name.isNotEmpty ? brand.name : 'no Name',
                           ),
                           trailing: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              editData(brand.id);
+                            },
                             icon: Icon(Icons.edit),
                           ),
                         ),
@@ -172,6 +174,64 @@ class _BrandState extends State<Brand> {
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void editData(String brandId) async {
+    var brand = brandController.brandList.firstWhere((b) => b.id == brandId);
+    TextEditingController brandName = TextEditingController(text: brand.name);
+    final String? intitalImage = brand.image.isNotEmpty ? brand.image : null;
+    Get.dialog(
+      Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Edit data',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Form(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    children: [
+                      getTextFormField(brandName, 'brand name'),
+                      spacer(),
+                      GestureDetector(
+                        onTap: brandController.selectedImage.call,
+                        child: Obx(
+                          () => CircleAvatar(
+                            radius: 50,
+                            backgroundImage:
+                                brandController.selectedImage.isNotEmpty
+                                    ? NetworkImage(brand.image)
+                                    : intitalImage != null
+                                    ? NetworkImage(intitalImage)
+                                    : null,
+                            child:
+                                brandController.selectedImage.isEmpty &&
+                                        intitalImage == null
+                                    ? Icon(Icons.add_a_photo)
+                                    : null,
+                          ),
+                        ),
+                      ),
+                      spacer(),
+                      Custombutton(
+                        onPressed: () {},
+                        text: 'Update button',
+                        width: 200,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

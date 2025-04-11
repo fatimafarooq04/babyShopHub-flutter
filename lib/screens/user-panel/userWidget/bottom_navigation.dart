@@ -107,10 +107,8 @@
 // }
 
 import 'package:babyshop/controllers/authControllers/get_current_user_controller.dart';
-import 'package:babyshop/controllers/authControllers/session_controller.dart';
 import 'package:babyshop/controllers/userControllers/bottom_nav_controller.dart';
 // import 'package:babyshop/controllers/userControllers/session_controller.dart';
-import 'package:babyshop/controllers/authControllers/session_controller.dart';
 import 'package:babyshop/utilis/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -128,7 +126,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
     GetCurrentUserController currentUserController =
         Get.find<GetCurrentUserController>();
     final controller = Get.find<BottomNavController>();
-    final session = Get.find<SessionController>();
+    // final session = Get.find<SessionController>();
 
     return Obx(
       () => BottomNavigationBar(
@@ -141,14 +139,14 @@ class _BottomNavigationState extends State<BottomNavigation> {
         onTap: controller.changeIndex,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.login_outlined),
-            activeIcon: const Icon(Icons.login),
-            label: 'Product',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: 'Home',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.shopping_cart_outlined),
+            activeIcon: Icon(Icons.shopping_cart),
+            label: 'shop',
           ),
 
           BottomNavigationBarItem(
