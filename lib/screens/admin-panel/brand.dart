@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:babyshop/controllers/adminController/brand_controller.dart';
 import 'package:babyshop/screens/admin-panel/adminCustom%20Widget/drawer.dart';
 import 'package:babyshop/screens/user-panel/userWidget/custombutton.dart';
@@ -183,7 +185,39 @@ class _BrandState extends State<Brand> {
   void editData(String brandId) async {
     var brand = brandController.brandList.firstWhere((b) => b.id == brandId);
     TextEditingController brandName = TextEditingController(text: brand.name);
-    final String? intitalImage = brand.image.isNotEmpty ? brand.image : null;
+    final String? initialImage = brand.image.isNotEmpty ? brand.image : null;
+
+    // Clear any previously selected images
+    brandController.selectedImage.clear();
+    void editData() async {
+      var brand = brandName.text.trim();
+      if (brand.isNotEmpty) {
+        await brandController.editData(
+          brandId,
+          brand,
+          initialImage ??
+              '', // existing image to be replaced if new one is selected
+        );
+
+        Get.back();
+        Get.snackbar(
+          'Category Update',
+          'Category updated successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppConstants.buttonBg,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          'Category not updated',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppConstants.buttonBg,
+          colorText: Colors.white,
+        );
+      }
+    }
+
     Get.dialog(
       Dialog(
         child: Padding(
@@ -192,7 +226,7 @@ class _BrandState extends State<Brand> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Edit data',
+                'Edit Brand',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Form(
@@ -200,31 +234,55 @@ class _BrandState extends State<Brand> {
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
                     children: [
-                      getTextFormField(brandName, 'brand name'),
+                      getTextFormField(brandName, 'Brand name'),
                       spacer(),
                       GestureDetector(
-                        onTap: brandController.selectedImage.call,
+                        onTap: brandController.pickImage,
                         child: Obx(
-                          () => CircleAvatar(
-                            radius: 50,
-                            backgroundImage:
+                          () => FutureBuilder<Uint8List?>(
+                            future:
                                 brandController.selectedImage.isNotEmpty
-                                    ? NetworkImage(brand.image)
-                                    : intitalImage != null
-                                    ? NetworkImage(intitalImage)
+                                    ? brandController.selectedImage.first
+                                        .readAsBytes()
                                     : null,
-                            child:
-                                brandController.selectedImage.isEmpty &&
-                                        intitalImage == null
-                                    ? Icon(Icons.add_a_photo)
-                                    : null,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircleAvatar(
+                                  radius: 50,
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+
+                              return CircleAvatar(
+                                radius: 50,
+                                backgroundImage:
+                                    brandController.selectedImage.isNotEmpty
+                                        ? MemoryImage(
+                                          snapshot.data!,
+                                        ) // New image
+                                        : (initialImage != null
+                                            ? NetworkImage(
+                                              initialImage,
+                                            ) // Existing image
+                                            : null),
+                                child:
+                                    brandController.selectedImage.isEmpty &&
+                                            initialImage == null
+                                        ? Icon(Icons.add_a_photo)
+                                        : null,
+                              );
+                            },
                           ),
                         ),
                       ),
                       spacer(),
                       Custombutton(
-                        onPressed: () {},
-                        text: 'Update button',
+                        onPressed: () {
+                          // Call your update function here
+                          editData();
+                        },
+                        text: 'Update Brand',
                         width: 200,
                       ),
                     ],

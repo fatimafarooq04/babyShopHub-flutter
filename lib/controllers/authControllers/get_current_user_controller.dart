@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class GetCurrentUserController extends GetxController {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -9,7 +10,7 @@ class GetCurrentUserController extends GetxController {
   Rx<User?> firebaseUser = Rx<User?>(FirebaseAuth.instance.currentUser);
   RxString userName = ''.obs;
   RxString profileImg = ''.obs;
-
+  final box = GetStorage();
   @override
   void onInit() {
     super.onInit();
@@ -17,6 +18,7 @@ class GetCurrentUserController extends GetxController {
       firebaseUser.value = user;
       if (user != null) {
         fetchCurrentUser(user.uid);
+        box.write('uid', user.uid);
       } else {
         // Clear user data when logging out
 
@@ -34,7 +36,7 @@ class GetCurrentUserController extends GetxController {
 
       if (userDoc.exists) {
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-        print(" User Data: $userData");
+        // print(" User Data: $userData");
 
         userName.value = userData['username'] ?? 'No name';
         profileImg.value = userData['profileimg'] ?? '';

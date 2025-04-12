@@ -326,19 +326,480 @@ class _ProductState extends State<Product> {
   }
 
   void detailsDialog(ProductModel product) {
+    final brandName =
+        brandController.brandList
+            .firstWhereOrNull((b) => b.id == product.brandId)
+            ?.name ??
+        'Unknown';
+
+    final categoryName =
+        category.categoryList
+            .firstWhereOrNull((c) => c.id == product.categoryId)
+            ?.name ??
+        'Unknown';
+
     Get.dialog(
-      AlertDialog(
-        title: Text(product.productName),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-          children: [],
+      Dialog(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.productName,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+
+                // Image Section with Safe Error Handling
+                if (product.productImages.isNotEmpty)
+                  SizedBox(
+                    height: 150,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: product.productImages.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: _buildImageWidget(
+                            product.productImages[index],
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                else
+                  _buildNoImagePlaceholder(),
+
+                SizedBox(height: 16),
+                _buildDetailRow("Description:", product.productDescription),
+                SizedBox(height: 8),
+                _buildDetailRow("Price:", product.price),
+                SizedBox(height: 8),
+                _buildDetailRow(
+                  "Sale Price:",
+                  product.salePrice ?? 'Not available',
+                ),
+                SizedBox(height: 8),
+                _buildDetailRow("Category:", categoryName),
+                SizedBox(height: 8),
+                _buildDetailRow("Brand:", brandName),
+                SizedBox(height: 16),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text('Close', style: TextStyle(color: Colors.red)),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        editProducts(product.id);
+                      },
+                      child: Text(
+                        'Edit product',
+                        style: TextStyle(color: AppConstants.buttonBg),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        productController.deleteProduct(product.id);
+                      },
+                      child: Text(
+                        'Delete product',
+                        style: TextStyle(color: AppConstants.buttonBg),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: Text('Close')),
-        ],
+      ),
+    );
+  }
+
+  // Helper widget for image display with error handling
+  Widget _buildImageWidget(String imageUrl) {
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.grey[200],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildErrorWidget(),
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value:
+                    loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // Helper widget for error state
+  Widget _buildErrorWidget() {
+    return Container(
+      color: Colors.grey[200],
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Colors.grey[500]),
+            SizedBox(height: 4),
+            Text(
+              'Image failed to load',
+              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper widget for no images
+  Widget _buildNoImagePlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: 100,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.grey[200],
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.image_not_supported, color: Colors.grey[500]),
+            SizedBox(height: 4),
+            Text(
+              'No images available',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper widget for consistent detail rows
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(width: 8),
+        Flexible(child: Text(value)),
+      ],
+    );
+  }
+
+  void editProducts(String productId) async {
+    // Find the product to edit
+    final product = productController.productsList.firstWhere(
+      (p) => p.id == productId,
+      orElse:
+          () => ProductModel(
+            id: '',
+            productName: '',
+            productDescription: '',
+            price: '',
+            categoryId: '',
+            brandId: '',
+            productImages: [],
+          ),
+    );
+
+    if (product.id.isEmpty) {
+      Get.snackbar('Error', 'Product not found');
+      return;
+    }
+
+    // Initialize controllers with current product values
+    final productName = TextEditingController(text: product.productName);
+    final productDesc = TextEditingController(text: product.productDescription);
+    final productPrice = TextEditingController(text: product.price);
+    final productSalePrice = TextEditingController(
+      text: product.salePrice ?? '',
+    );
+
+    // Set current category and brand
+    category.selectedCategory.value = category.categoryList.firstWhereOrNull(
+      (c) => c.id == product.categoryId,
+    );
+    brandController.selectedBrand.value = brandController.brandList
+        .firstWhereOrNull((b) => b.id == product.brandId);
+
+    // Clear any previously selected images
+    productController.finalImages.clear();
+
+    GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+    void updateProduct() {
+      if (formKey.currentState!.validate()) {
+        productController.updateProduct(
+          productId,
+          productName.text.trim(),
+          productDesc.text.trim(),
+          productPrice.text.trim(),
+          productSalePrice.text.trim(),
+          category.selectedCategory.value?.id ?? '',
+          brandController.selectedBrand.value?.id ?? '',
+          productController.finalImages,
+        );
+        Get.back();
+      }
+    }
+
+    Get.dialog(
+      Dialog(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Edit Product',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+
+                  // Product Name
+                  getTextFormField(
+                    productName,
+                    'Product name',
+                    validator:
+                        MultiValidator([
+                          RequiredValidator(
+                            errorText: 'This field is required',
+                          ),
+                        ]).call,
+                  ),
+                  spacer(),
+
+                  // Product Description
+                  getTextFormField(
+                    productDesc,
+                    'Product description',
+                    validator:
+                        MultiValidator([
+                          RequiredValidator(
+                            errorText: 'This field is required',
+                          ),
+                        ]).call,
+                  ),
+                  spacer(),
+
+                  // Product Price
+                  getTextFormField(
+                    productPrice,
+                    'Product price',
+                    validator:
+                        MultiValidator([
+                          RequiredValidator(
+                            errorText: 'This field is required',
+                          ),
+                          PatternValidator(
+                            r'^\d+(\.\d{1,2})?$',
+                            errorText: 'Enter a valid price',
+                          ),
+                        ]).call,
+                  ),
+                  spacer(),
+
+                  // Sale Price
+                  getTextFormField(productSalePrice, 'Sale price (optional)'),
+                  spacer(),
+
+                  // Category Dropdown
+                  Obx(() {
+                    return category.categoryList.isEmpty
+                        ? Text('No categories available')
+                        : Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppConstants.outline),
+                            color: Color.fromARGB(36, 154, 82, 255),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButton<CategoryModel>(
+                            isExpanded: true,
+                            value: category.selectedCategory.value,
+                            items:
+                                category.categoryList.map((cate) {
+                                  return DropdownMenuItem<CategoryModel>(
+                                    value: cate,
+                                    child: Text(cate.name),
+                                  );
+                                }).toList(),
+                            onChanged: (value) {
+                              category.selectedCategory.value = value;
+                            },
+                            hint: Text('Select category'),
+                            underline: SizedBox(),
+                          ),
+                        );
+                  }),
+                  spacer(),
+
+                  // Brand Dropdown
+                  Obx(() {
+                    return brandController.brandList.isEmpty
+                        ? Text('No brands available')
+                        : Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppConstants.outline),
+                            color: Color.fromARGB(36, 154, 82, 255),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButton<BrandModel>(
+                            isExpanded: true,
+                            value: brandController.selectedBrand.value,
+                            items:
+                                brandController.brandList.map((brand) {
+                                  return DropdownMenuItem<BrandModel>(
+                                    value: brand,
+                                    child: Text(brand.name),
+                                  );
+                                }).toList(),
+                            onChanged: (value) {
+                              brandController.selectedBrand.value = value;
+                            },
+                            hint: Text('Select brand'),
+                            underline: SizedBox(),
+                          ),
+                        );
+                  }),
+                  spacer(),
+
+                  // Current Images
+                  Text(
+                    'Current Images:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  if (product.productImages.isNotEmpty)
+                    SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: product.productImages.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: _buildImageWidget(
+                              product.productImages[index],
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    _buildNoImagePlaceholder(),
+                  spacer(),
+
+                  // Add New Images
+                  Text(
+                    'Add New Images:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Custombutton(
+                    onPressed: () => productController.pickImage(),
+                    text: 'Select Images',
+                    width: 200,
+                  ),
+                  spacer(),
+
+                  // Selected New Images
+                  Obx(() {
+                    return productController.finalImages.isNotEmpty
+                        ? SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: productController.finalImages.length,
+                            itemBuilder: (context, index) {
+                              final image =
+                                  productController.finalImages[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Stack(
+                                  children: [
+                                    _buildImageWidget(image.path),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: IconButton(
+                                        icon: Icon(Icons.close, size: 20),
+                                        onPressed: () {
+                                          productController.finalImages
+                                              .removeAt(index);
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                        : SizedBox();
+                  }),
+                  spacer(),
+
+                  // Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => Get.back(),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: updateProduct,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppConstants.buttonBg,
+                        ),
+                        child: Text(
+                          'Update Product',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

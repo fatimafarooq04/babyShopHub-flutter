@@ -46,7 +46,7 @@
 //             EasyLoading.dismiss();
 //             Get.toNamed('/admin');
 //           } else {
-//             // by default role is user then go to user panel 
+//             // by default role is user then go to user panel
 //             Get.snackbar(
 //               'Login Successful',
 //               'Welcome back!',
@@ -130,8 +130,6 @@
 //   }
 // }
 
-
-
 import 'dart:developer';
 
 import 'package:babyshop/controllers/authControllers/session_controller.dart';
@@ -153,6 +151,7 @@ class SigninController extends GetxController {
     try {
       // loader
       EasyLoading.show(status: 'loading');
+      await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
       // signin with credential
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -161,8 +160,6 @@ class SigninController extends GetxController {
       // get user data controller to check if user exist or not for signin
       final GetUserDataController userDataController =
           Get.find<GetUserDataController>();
-      final box = GetStorage(); // GetStorage instance
-
       // store id in var
       var userData = await userDataController.getUserData(
         userCredential.user!.uid,
@@ -173,7 +170,10 @@ class SigninController extends GetxController {
         // check if email is verfied
         if (userCredential.user!.emailVerified) {
           // check if role is admin then go to admin dashboard
+
           if (userData.isNotEmpty && userData[0]['role'] == 'admin') {
+            final box = GetStorage(); // GetStorage instance
+
             Get.snackbar(
               'Login Successful',
               'Welcome back!',
@@ -184,13 +184,13 @@ class SigninController extends GetxController {
             EasyLoading.dismiss();
             Get.toNamed('/admin');
           } else {
-            //store values in session for user
-Get.find<SessionController>().login(userCredential.user!.uid);
-            box.write('uid', userCredential.user!.uid);
-            box.write('email', userCredential.user!.email);
-            box.write('username', userData[0]['username']); // from Firestore
-            box.write('profileimg', userData[0]['profileimg']); // from Firestor
-            // ✅ Notify SessionController
+            // //store values in session for user
+            // Get.find<SessionController>().login(userCredential.user!.uid);
+            // box.write('uid', userCredential.user!.uid);
+            // box.write('email', userCredential.user!.email);
+            // box.write('username', userData[0]['username']); // from Firestore
+            // box.write('profileimg', userData[0]['profileimg']); // from Firestor
+            //  Notify SessionController
             //store values in session for user
             // by default role is user then go to user panel
             Get.snackbar(

@@ -1,23 +1,21 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
-
-import 'package:babyshop/models/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:babyshop/models/product_model.dart';
 
 class ProductController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   RxList<XFile> finalImages = <XFile>[].obs;
-
   final ImagePicker picker = ImagePicker();
+  RxList<ProductModel> productsList = <ProductModel>[].obs;
 
   // Pick image function
   Future<void> pickImage() async {
-    // Select multiple images
     final List<XFile> selectedImage = await picker.pickMultiImage();
     if (selectedImage.isNotEmpty) {
       finalImages.assignAll(selectedImage);
@@ -39,7 +37,7 @@ class ProductController extends GetxController {
         http.MultipartFile.fromBytes(
           'file',
           imgBytes,
-          filename: 'category_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          filename: 'product_${DateTime.now().millisecondsSinceEpoch}.jpg',
         ),
       );
 
@@ -57,6 +55,19 @@ class ProductController extends GetxController {
       log('Error uploading to Cloudinary: $e');
       return null;
     }
+  }
+
+  // Helper method to upload multiple images
+  Future<List<String>> _uploadImages(List<XFile> images) async {
+    List<String> imageUrls = [];
+    for (var image in images) {
+      final bytes = await image.readAsBytes();
+      String? uploadedImageUrl = await imageCloudinary(bytes);
+      if (uploadedImageUrl != null) {
+        imageUrls.add(uploadedImageUrl);
+      }
+    }
+    return imageUrls;
   }
 
   // Add product to Firestore
@@ -77,21 +88,8 @@ class ProductController extends GetxController {
           categoryId.isNotEmpty &&
           brandId.isNotEmpty &&
           productImages.isNotEmpty) {
-        List<String> imageUrls = [];
+        List<String> imageUrls = await _uploadImages(productImages);
 
-        // Upload each image to Cloudinary
-        for (var image in productImages) {
-          final bytes = await image.readAsBytes();
-          String? uploadedImageUrl = await imageCloudinary(bytes);
-
-          if (uploadedImageUrl == null) {
-            return;
-          }
-
-          imageUrls.add(uploadedImageUrl);
-        }
-
-        // Create the product model
         ProductModel productModel = ProductModel(
           id: '',
           productName: productName,
@@ -103,31 +101,28 @@ class ProductController extends GetxController {
           productImages: imageUrls,
         );
 
-        // Save the product to Firestore
         final docRef = await _firestore
             .collection('products')
             .add(productModel.toMap());
 
-        // Update the ID in Firestore document
         await _firestore.collection('products').doc(docRef.id).update({
           'id': docRef.id,
         });
+
+        await fetchProducts();
         EasyLoading.dismiss();
-        Get.snackbar("Success", "Product uploaded successfully");
+        Get.snackbar("Success", "Product added successfully");
       } else {
         EasyLoading.dismiss();
-
         Get.snackbar('Required', 'All fields are required');
       }
     } catch (e) {
       EasyLoading.dismiss();
-
-      log('Error: $e');
       Get.snackbar('Error', 'An error occurred: $e');
     }
   }
 
-  RxList<ProductModel> productsList = <ProductModel>[].obs;
+  // Fetch all products
   Future<void> fetchProducts() async {
     try {
       QuerySnapshot snapshot = await _firestore.collection('products').get();
@@ -138,9 +133,88 @@ class ProductController extends GetxController {
             )
             .toList(),
       );
-      log('${productsList.length}');
     } catch (e) {
-      log('$e');
+      Get.snackbar('Error', 'Failed to fetch products: $e');
+    }
+  }
+
+  // Update product in Firestore
+  Future<void> updateProduct(
+    String productId,
+    String name,
+    String description,
+    String price,
+    String salePrice,
+    String categoryId,
+    String brandId,
+    List<XFile> newImages, {
+    bool keepExistingImages = true,
+  }) async {
+    try {
+      EasyLoading.show(status: 'Updating product...');
+
+      // Get the current product
+      final currentProduct = productsList.firstWhere((p) => p.id == productId);
+
+      // Upload new images if any
+      List<String> newImageUrls = [];
+      if (newImages.isNotEmpty) {
+        newImageUrls = await _uploadImages(newImages);
+      }
+
+      // Prepare the updated product data
+      final updatedProduct = ProductModel(
+        id: productId,
+        productName: name,
+        productDescription: description,
+        price: price,
+        salePrice: salePrice,
+        categoryId: categoryId,
+        brandId: brandId,
+        productImages:
+            keepExistingImages
+                ? [...currentProduct.productImages, ...newImageUrls]
+                : newImageUrls,
+      );
+
+      // Update in Firestore
+      await _firestore
+          .collection('products')
+          .doc(productId)
+          .update(updatedProduct.toMap());
+
+      // Update local list
+      final index = productsList.indexWhere((p) => p.id == productId);
+      if (index != -1) {
+        productsList[index] = updatedProduct;
+        productsList.refresh();
+      }
+      await fetchProducts();
+
+      EasyLoading.dismiss();
+      Get.back(); 
+      Get.snackbar('Success', 'Product updated successfully');
+    } catch (e) {
+      EasyLoading.dismiss();
+      Get.snackbar('Error', 'Failed to update product: ${e.toString()}');
+    }
+  }
+
+  // Delete product
+  Future<void> deleteProduct(String productId) async {
+    try {
+      EasyLoading.show(status: 'Deleting product...');
+      await _firestore.collection('products').doc(productId).delete();
+
+      // Remove from local list
+      productsList.removeWhere((p) => p.id == productId);
+      productsList.refresh();
+
+      EasyLoading.dismiss();
+      Get.snackbar('Success', 'Product deleted successfully');
+    } catch (e) {
+      EasyLoading.dismiss();
+      Get.snackbar('Error', 'Failed to delete product: $e');
     }
   }
 }

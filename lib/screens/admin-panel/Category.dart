@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/screens/admin-panel/adminCustom%20Widget/drawer.dart';
 import 'package:babyshop/screens/user-panel/userWidget/ui_helper.dart';
@@ -249,18 +251,38 @@ class _CategoryState extends State<Category> {
             GestureDetector(
               onTap: categoryadd.selectedImage,
               child: Obx(
-                () => CircleAvatar(
-                  radius: 50,
-                  backgroundImage:
+                () => FutureBuilder<Uint8List?>(
+                  future:
                       categoryadd.selectImage.isNotEmpty
-                          ? NetworkImage(category.image)
-                          : intitalImage != null
-                          ? NetworkImage(intitalImage)
+                          ? categoryadd.selectImage.first.readAsBytes()
                           : null,
-                  child:
-                      categoryadd.selectImage.isEmpty && intitalImage == null
-                          ? Icon(Icons.add_a_photo)
-                          : null,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircleAvatar(
+                        radius: 50,
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    return CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          categoryadd.selectImage.isNotEmpty
+                              ? MemoryImage(
+                                snapshot.data!,
+                              ) // For newly selected image
+                              : (intitalImage != null
+                                  ? NetworkImage(
+                                    intitalImage,
+                                  ) // For existing image
+                                  : null),
+                      child:
+                          categoryadd.selectImage.isEmpty &&
+                                  intitalImage == null
+                              ? Icon(Icons.add_a_photo)
+                              : null,
+                    );
+                  },
                 ),
               ),
             ),

@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:babyshop/utilis/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
 import 'package:get/get.dart';
 
@@ -13,12 +15,22 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final box = GetStorage();
+
   @override
   void initState() {
-    // wait for 5 sec navigate to next page
     super.initState();
-    Timer(Duration(seconds: 5), () {
-      Get.toNamed('/mainPage');
+
+    Timer(const Duration(seconds: 3), () {
+      String? uid = box.read('uid');
+
+      if (uid != null && uid.isNotEmpty) {
+        log("User is already logged in. UID: $uid");
+        Get.offNamed('/mainPage'); 
+      } else {
+        log("User not logged in.");
+        Get.offNamed('/mainPage');
+      }
     });
   }
 

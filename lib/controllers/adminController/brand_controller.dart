@@ -83,12 +83,25 @@ class BrandController extends GetxController {
     }
   }
 
-  Future<void> editData(String id, String name, String image) async {
+  Future<void> editData(String id, String name, String existingImage) async {
     try {
+      String imageUrl = existingImage;
+
+      if (selectedImage.isNotEmpty) {
+        final imgBytes = await selectedImage.first.readAsBytes();
+        String? uploadedUrl = await cloudinary(imgBytes);
+        if (uploadedUrl != null && uploadedUrl.isNotEmpty) {
+          imageUrl = uploadedUrl;
+        }
+      }
+
       await firestore.collection('Brands').doc(id).update({
         'brandName': name,
-        'brandImage': image,
+        'brandImage': imageUrl,
       });
+
+      selectedImage.clear();
+      fetchBrands(); // Refresh the list
     } catch (e) {
       log('$e');
     }

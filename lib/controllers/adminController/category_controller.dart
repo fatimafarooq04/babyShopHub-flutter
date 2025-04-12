@@ -98,16 +98,28 @@ class Categoryadd extends GetxController {
   Future<void> editCategory(
     String id,
     String categoryNew,
-    String categoryNewImage,
+    String existingImageUrl,
   ) async {
     try {
+      String imageUrlToUse = existingImageUrl;
+
+      if (selectImage.isNotEmpty) {
+        final imgBytes = await selectImage.first.readAsBytes();
+        String? uploadedImageUrl = await imageCloudinary(imgBytes);
+        if (uploadedImageUrl != null) {
+          imageUrlToUse = uploadedImageUrl;
+        }
+      }
+
       await _firestore.collection('Category').doc(id).update({
         'categoryName': categoryNew,
-        'categoryImage': categoryNewImage,
+        'categoryImage': imageUrlToUse,
       });
+
+      selectImage.clear(); // clear after update
       fetchCategory();
     } catch (e) {
-      log('Error $e');
+      log('Error updating category: $e');
     }
   }
 }
