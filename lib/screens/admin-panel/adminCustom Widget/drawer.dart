@@ -24,11 +24,17 @@ class _AppDrawerState extends State<AppDrawer> {
         child: Column(
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text('Username: ${userController.userName}'),
-              accountEmail: Text('Email: ${userController.userEmail}'),
+              accountName: Text(
+                'Username: ${userController.currentUserData['username']}',
+              ),
+              accountEmail: Text(
+                'Email: ${userController.currentUserData['email']}',
+              ),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.grey.shade300,
-                backgroundImage: NetworkImage(userController.profileImg.value),
+                backgroundImage: NetworkImage(
+                  userController.currentUserData['profileimg'],
+                ),
               ),
             ),
             // custom widget
@@ -51,6 +57,10 @@ class _AppDrawerState extends State<AppDrawer> {
             Divider(),
             getListTile(Icons.production_quantity_limits, 'Product', () {
               Get.toNamed('/product');
+            }),
+            Divider(),
+            getListTile(Icons.shopping_cart, 'Orders', () {
+              Get.toNamed('/orders');
             }),
           ],
         ),

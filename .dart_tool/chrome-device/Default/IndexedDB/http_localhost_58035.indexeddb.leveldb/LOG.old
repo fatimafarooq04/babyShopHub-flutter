@@ -1,0 +1,25 @@
+2025/04/17-23:24:52.859 25bc Reusing MANIFEST C:\Users\Student\AppData\Local\Temp\flutter_tools.da6774e6\flutter_tools_chrome_device.9ffb1806\Default\IndexedDB\http_localhost_58035.indexeddb.leveldb/MANIFEST-000001
+2025/04/17-23:24:52.860 25bc Recovering log #20
+2025/04/17-23:24:52.861 25bc Reusing old log C:\Users\Student\AppData\Local\Temp\flutter_tools.da6774e6\flutter_tools_chrome_device.9ffb1806\Default\IndexedDB\http_localhost_58035.indexeddb.leveldb/000020.log 
+2025/04/17-23:24:52.862 25bc Delete type=2 #19
+2025/04/17-23:24:52.879 ce4 Level-0 table #25: started
+2025/04/17-23:24:52.882 ce4 Level-0 table #25: 832 bytes OK
+2025/04/17-23:24:52.883 ce4 Delete type=0 #20
+2025/04/17-23:24:52.884 25bc Manual compaction at level-0 from '\x00\x0a\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0b\x00\x00\x00' @ 0 : 0; will stop at '\x00\x0a\x00\x00\x05' @ 338 : 1
+2025/04/17-23:24:52.885 25bc Compacting 1@0 + 1@1 files
+2025/04/17-23:24:52.887 25bc Generated table #26@0: 90 keys, 1663 bytes
+2025/04/17-23:24:52.888 25bc Compacted 1@0 + 1@1 files => 1663 bytes
+2025/04/17-23:24:52.888 25bc compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/04/17-23:24:52.889 25bc Delete type=2 #25
+2025/04/17-23:24:52.890 25bc Manual compaction at level-0 from '\x00\x0a\x00\x00\x05' @ 338 : 1 .. '\x00\x0b\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/04/17-23:26:08.905 ce4 Level-0 table #28: started
+2025/04/17-23:26:08.909 ce4 Level-0 table #28: 5728 bytes OK
+2025/04/17-23:26:08.910 ce4 Delete type=2 #22
+2025/04/17-23:26:08.911 ce4 Delete type=0 #24
+2025/04/17-23:26:08.912 25bc Manual compaction at level-0 from '\x00\x0b\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0c\x00\x00\x00' @ 0 : 0; will stop at '\x00\x0b\x00\x00\x05' @ 397 : 1
+2025/04/17-23:26:08.912 25bc Compacting 1@0 + 1@1 files
+2025/04/17-23:26:08.914 25bc Generated table #29@0: 93 keys, 1581 bytes
+2025/04/17-23:26:08.914 25bc Compacted 1@0 + 1@1 files => 1581 bytes
+2025/04/17-23:26:08.915 25bc compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/04/17-23:26:08.916 25bc Delete type=2 #28
+2025/04/17-23:26:08.917 25bc Manual compaction at level-0 from '\x00\x0b\x00\x00\x05' @ 397 : 1 .. '\x00\x0c\x00\x00\x00' @ 0 : 0; will stop at (end)

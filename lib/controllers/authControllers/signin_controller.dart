@@ -132,13 +132,11 @@
 
 import 'dart:developer';
 
-import 'package:babyshop/controllers/authControllers/session_controller.dart';
 import 'package:babyshop/controllers/authControllers/user_data_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 
 import '../../utilis/app_constants.dart';
 
@@ -172,7 +170,7 @@ class SigninController extends GetxController {
           // check if role is admin then go to admin dashboard
 
           if (userData.isNotEmpty && userData[0]['role'] == 'admin') {
-            final box = GetStorage(); // GetStorage instance
+            // final box = GetStorage(); // GetStorage instance
 
             Get.snackbar(
               'Login Successful',

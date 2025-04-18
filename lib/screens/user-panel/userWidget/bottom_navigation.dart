@@ -151,29 +151,31 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
           BottomNavigationBarItem(
             icon:
-                currentUserController.profileImg.isNotEmpty
+                currentUserController.currentUserData['profileimg'] != null
                     ? CircleAvatar(
                       radius: 14,
                       backgroundImage: NetworkImage(
-                        currentUserController.profileImg.value,
+                        currentUserController.currentUserData['profileimg'],
                       ),
                       backgroundColor: Colors.transparent,
                     )
                     : const Icon(Icons.person),
             activeIcon:
-                currentUserController.profileImg.isNotEmpty
+                currentUserController.currentUserData['profileimg'] != null
                     ? CircleAvatar(
                       radius: 14,
                       backgroundImage: NetworkImage(
-                        currentUserController.profileImg.value,
+                        currentUserController.currentUserData['profileimg'] ??
+                            '',
                       ),
                       backgroundColor: Colors.transparent,
                     )
                     : const Icon(Icons.person),
-            label:
-                currentUserController.userName.value.isNotEmpty
-                    ? currentUserController.userName.value
-                    : 'Profile',
+          label: currentUserController.currentUserData['username'] != null &&
+       currentUserController.currentUserData['username'].toString().isNotEmpty
+    ? currentUserController.currentUserData['username']
+    : 'Profile',
+
           ),
         ],
       ),

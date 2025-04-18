@@ -5,8 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 
-
-// signup controller with email 
+// signup controller with email
 class SignupController extends GetxController {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
@@ -20,7 +19,7 @@ class SignupController extends GetxController {
     try {
       EasyLoading.show(status: 'Please wait');
 
-      // create account with creadential 
+      // create account with creadential
       UserCredential credential = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
       await credential.user!.sendEmailVerification();
@@ -29,7 +28,7 @@ class SignupController extends GetxController {
           Get.find<DevicetokenController>();
       // get the device token
       await devicetokenController.getDeviceToken();
-      // call model 
+      // call model
       UserModel userModel = UserModel(
         id: credential.user!.uid,
         username: name,
@@ -38,10 +37,12 @@ class SignupController extends GetxController {
             'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBGcM6Pr04EvVjbkfVmNnXQoFHU_Y3NxbaNQ&s',
         userDeviceToken: devicetokenController.deviceToken.value,
         role: 'user',
+        num: '',
+        address: '',
         password: password,
         createdOn: DateTime.now(),
       );
-      // add data in database 
+      // add data in database
       _firebaseFirestore
           .collection('user')
           .doc(credential.user!.uid)

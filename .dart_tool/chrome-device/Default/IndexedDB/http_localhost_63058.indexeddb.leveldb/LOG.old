@@ -1,0 +1,25 @@
+2025/04/14-18:15:50.660 5dc Reusing MANIFEST C:\Users\Student\AppData\Local\Temp\flutter_tools.966942e\flutter_tools_chrome_device.f0e12d68\Default\IndexedDB\http_localhost_63058.indexeddb.leveldb/MANIFEST-000001
+2025/04/14-18:15:50.662 5dc Recovering log #12
+2025/04/14-18:15:50.664 5dc Reusing old log C:\Users\Student\AppData\Local\Temp\flutter_tools.966942e\flutter_tools_chrome_device.f0e12d68\Default\IndexedDB\http_localhost_63058.indexeddb.leveldb/000012.log 
+2025/04/14-18:15:50.665 5dc Delete type=2 #11
+2025/04/14-18:15:50.696 219c Level-0 table #17: started
+2025/04/14-18:15:50.700 219c Level-0 table #17: 817 bytes OK
+2025/04/14-18:15:50.702 219c Delete type=0 #12
+2025/04/14-18:15:50.703 219c Manual compaction at level-0 from '\x00\x07\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at '\x00\x07\x00\x00\x05' @ 203 : 1
+2025/04/14-18:15:50.703 219c Compacting 1@0 + 1@1 files
+2025/04/14-18:15:50.706 219c Generated table #18@0: 54 keys, 1513 bytes
+2025/04/14-18:15:50.706 219c Compacted 1@0 + 1@1 files => 1513 bytes
+2025/04/14-18:15:50.707 219c compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/04/14-18:15:50.708 219c Delete type=2 #17
+2025/04/14-18:15:50.709 5dc Manual compaction at level-0 from '\x00\x07\x00\x00\x05' @ 203 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/04/14-18:16:39.283 5dc Level-0 table #20: started
+2025/04/14-18:16:39.288 5dc Level-0 table #20: 789 bytes OK
+2025/04/14-18:16:39.289 5dc Delete type=2 #14
+2025/04/14-18:16:39.289 5dc Delete type=0 #16
+2025/04/14-18:16:39.291 5dc Manual compaction at level-0 from '\x00\x08\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x09\x00\x00\x00' @ 0 : 0; will stop at '\x00\x08\x00\x00\x05' @ 236 : 1
+2025/04/14-18:16:39.291 5dc Compacting 1@0 + 1@1 files
+2025/04/14-18:16:39.294 5dc Generated table #21@0: 58 keys, 1436 bytes
+2025/04/14-18:16:39.294 5dc Compacted 1@0 + 1@1 files => 1436 bytes
+2025/04/14-18:16:39.295 5dc compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/04/14-18:16:39.296 5dc Delete type=2 #20
+2025/04/14-18:16:39.297 5dc Manual compaction at level-0 from '\x00\x08\x00\x00\x05' @ 236 : 1 .. '\x00\x09\x00\x00\x00' @ 0 : 0; will stop at (end)

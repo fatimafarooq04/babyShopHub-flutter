@@ -270,11 +270,11 @@ class _CategoryState extends State<Category> {
                           categoryadd.selectImage.isNotEmpty
                               ? MemoryImage(
                                 snapshot.data!,
-                              ) // For newly selected image
+                              ) 
                               : (intitalImage != null
                                   ? NetworkImage(
                                     intitalImage,
-                                  ) // For existing image
+                                  ) 
                                   : null),
                       child:
                           categoryadd.selectImage.isEmpty &&

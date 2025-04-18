@@ -1,6 +1,7 @@
 import 'package:babyshop/controllers/adminController/brand_controller.dart';
 import 'package:babyshop/controllers/adminController/category_controller.dart';
 import 'package:babyshop/controllers/adminController/fetch_all_users.dart';
+import 'package:babyshop/controllers/adminController/order_controller.dart';
 import 'package:babyshop/controllers/adminController/product_controller.dart';
 import 'package:babyshop/controllers/authControllers/get_current_user_controller.dart';
 import 'package:babyshop/controllers/authControllers/session_controller.dart';
@@ -44,6 +45,8 @@ void main() async {
   Get.put(Categoryadd());
   Get.put(ProductController());
   Get.put(BrandController());
+  Get.put(OrderController());
+
   runApp(DevicePreview(enabled: !kReleaseMode, builder: (context) => MyApp()));
 }
 

@@ -4,6 +4,8 @@ class UserModel {
   final String email;
   final String? password;
   final String profileimg;
+  final String? num;
+  final String? address;
   final String? role;
   final String userDeviceToken;
   final dynamic createdOn;
@@ -15,6 +17,8 @@ class UserModel {
     this.password,
     required this.profileimg,
     this.role,
+    this.num,
+    this.address,
     required this.userDeviceToken,
     required this.createdOn,
   });
@@ -25,6 +29,8 @@ class UserModel {
       email: json['email'],
       password: json['password'],
       profileimg: json['profileimg'],
+      num: json['num'] ?? "",
+      address: json['address'] ?? "",
       role: json['role'] ?? 'user',
       userDeviceToken: json['userDeviceToken'],
       createdOn: json['createdOn'].toString(),
@@ -35,8 +41,10 @@ class UserModel {
       'id': id,
       'username': username,
       'email': email,
-      'password': password  ,
+      'password': password,
       'profileimg': profileimg,
+      'num': num,
+      'address': address,
       'role': role,
       'userDeviceToken': userDeviceToken,
       'createdOn': createdOn,

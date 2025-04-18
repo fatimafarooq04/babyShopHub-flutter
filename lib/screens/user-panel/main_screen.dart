@@ -1,18 +1,20 @@
 import 'package:babyshop/controllers/authControllers/get_current_user_controller.dart';
 import 'package:babyshop/controllers/authControllers/session_controller.dart';
+import 'package:babyshop/screens/user-panel/AllProducts.dart';
 import 'package:babyshop/screens/user-panel/profile_screen.dart';
+import 'package:babyshop/screens/user-panel/userWidget/appbar.dart';
 import 'package:babyshop/utilis/app_constants.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:babyshop/controllers/userControllers/bottom_nav_controller.dart';
 import 'package:babyshop/controllers/authControllers/user_data_controller.dart';
 import 'package:babyshop/screens/user-panel/home_screen.dart';
 import 'package:get_storage/get_storage.dart';
-
-import 'package:babyshop/screens/user-panel/shop_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:babyshop/screens/user-panel/userWidget/bottom_navigation.dart';
 
 class MainScreen extends StatefulWidget {
@@ -24,8 +26,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final BottomNavController controller = Get.put(BottomNavController());
-
-  final List<Widget> pages = [HomeScreen(), ShopScreen(), ProfileScreen()];
+  final List<Widget> pages = [HomeScreen(), AllProducts(), ProfileScreen()];
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<String> allCategories = [];
   List<String> filteredCategories = [];
@@ -53,11 +55,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _fetchCategories();
     _fetchBrands();
-    // final box = GetStorage();
-    // uid = box.read('user_id'); // Corrected the way you access stored values
-    // username = box.read('user_name');
-    print(currentUserController.userId);
-    print(currentUserController.userName);
+    // print(currentUserController.userId);
   }
 
   void _fetchCategories() async {
@@ -76,8 +74,9 @@ class _MainScreenState extends State<MainScreen> {
     final brandData =
         snapshot.docs.map((doc) {
           return {
+            'id': doc.id,
             'name': doc['brandName'] as String,
-            'image': doc['brandImage'] as String, // Assuming brandImage exists
+            'image': doc['brandImage'] as String,
           };
         }).toList();
 
@@ -109,6 +108,109 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _showToast(String message) {
+    Fluttertoast.showToast(msg: message, toastLength: Toast.LENGTH_SHORT);
+  }
+
+  //function when click on cart product will be add in the CartItems table start
+  Future<void> _handleAddToCart(Map<String, dynamic> product) async {
+    final currentUser = _auth.currentUser;
+    print("Product details: $product");
+    print("Product ID: ${product['id']}");
+
+    if (currentUser == null) {
+      Get.toNamed('/Signup');
+      //        final String? productId = product['id']?.toString();
+
+      // if (productId == null || productId!.isEmpty) {
+      //   _showToast('Product ID is missing');
+      //   return;
+      // }
+      // Get.toNamed('/Signin', arguments: {'redirect': '/ClothesScreen', 'productId': product['id']});
+
+      return;
+    }
+
+    try {
+      // Check if product already exists in the cart for this user
+      final existing =
+          await _firestore
+              .collection('CartItems')
+              .where('UserID', isEqualTo: currentUser.uid)
+              .where(
+                'ProuductName',
+                isEqualTo: product['name'],
+              ) // match by name
+              .get();
+
+      if (existing.docs.isNotEmpty) {
+        // Product exists, update quantity
+        final doc = existing.docs.first;
+        final currentQty = doc['Quentity'] ?? 1;
+        await doc.reference.update({'Quentity': currentQty + 1});
+      } else {
+        // Product doesn't exist, add new entry
+        await _firestore.collection('CartItems').add({
+          'BrandID': product['brandId'],
+          'CatID': product['categoryId'],
+          'Price': product['price'],
+          'ProductImage': product['image'],
+          'ProuductName': product['name'],
+          'Quentity': 1,
+          'UserID': currentUser.uid,
+        });
+      }
+
+      _showToast("Product added to cart");
+    } catch (e) {
+      _showToast("Failed to add to cart: $e");
+    }
+  }
+  //function when click on cart product will be add in the CartItems table end
+
+  //function when click on heart product will be add in the Wishlist table  start
+
+  Future<void> _handleAddToWishList(Map<String, dynamic> product) async {
+    final currentUser = _auth.currentUser;
+
+    if (currentUser == null) {
+      Get.toNamed('/Signup');
+      return;
+    }
+
+    try {
+      // Check if product already exists in the cart for this user
+      final existing =
+          await _firestore
+              .collection('WishList')
+              .where('UserID', isEqualTo: currentUser.uid)
+              .where(
+                'ProuductName',
+                isEqualTo: product['name'],
+              ) // match by name
+              .get();
+
+      if (existing.docs.isNotEmpty) {
+        _showToast("Product already in the WishliList");
+      } else {
+        // Product doesn't exist, add new entry
+        await _firestore.collection('WishList').add({
+          'BrandID': product['brandId'],
+          'CatID': product['categoryId'],
+          'Price': product['price'],
+          'ProductImage': product['image'],
+          'ProuductName': product['name'],
+          'Quentity': 1,
+          'UserID': currentUser.uid,
+        });
+        _showToast("Product added to Wish List");
+      }
+    } catch (e) {
+      _showToast("Failed to add to Wish List: $e");
+    }
+  }
+
+  //function when click on heart product will be add in the Wishlist table  end
   void _openDrawer(String type) async {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -152,103 +254,224 @@ class _MainScreenState extends State<MainScreen> {
             return Container(
               height: MediaQuery.of(context).size.height * 0.5,
               padding: EdgeInsets.all(20),
-              child: ListView.builder(
-                itemCount: docs.length,
-                itemBuilder: (context, index) {
-                  final doc = docs[index];
-                  final data = doc.data() as Map<String, dynamic>;
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: docs.length,
+                      itemBuilder: (context, index) {
+                        final doc = docs[index];
+                        final data = doc.data() as Map<String, dynamic>;
 
-                  double price =
-                      double.tryParse(data['Price'].toString()) ?? 0.0;
-                  int quantity = data['Quentity'] ?? 1;
-                  double totalPrice = price * quantity;
+                        double price =
+                            double.tryParse(data['Price'].toString()) ?? 0.0;
+                        int quantity = data['Quentity'] ?? 1;
+                        double totalPrice = price * quantity;
 
-                  return ListTile(
-                    leading: Image.network(
-                      data['ProductImage'],
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(data['ProuductName']),
-                    subtitle:
-                        type == 'WishList'
-                            ? null
-                            : Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.remove_circle_outline),
-                                  onPressed: () async {
-                                    if (quantity > 1) {
-                                      quantity--;
-                                      totalPrice = price * quantity;
-                                      await doc.reference.update({
-                                        'Quentity': quantity,
-                                        'TotalPrice': totalPrice,
-                                      });
-                                      final updatedSnapshot =
+                        return ListTile(
+                          leading: Image.network(
+                            data['ProductImage'],
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                          title: Text(data['ProuductName']),
+                          subtitle:
+                              type == 'WishList'
+                                  ? null
+                                  : Row(
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.remove_circle_outline),
+                                        onPressed: () async {
+                                          if (quantity > 1) {
+                                            quantity--;
+                                            totalPrice = price * quantity;
+                                            await doc.reference.update({
+                                              'Quentity': quantity,
+                                              'TotalPrice': totalPrice,
+                                            });
+                                            final updatedSnapshot =
+                                                await FirebaseFirestore.instance
+                                                    .collection('CartItems')
+                                                    .where(
+                                                      'UserID',
+                                                      isEqualTo: user!.uid,
+                                                    )
+                                                    .get();
+                                            setState(() {
+                                              docs = updatedSnapshot.docs;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      Text(
+                                        '$quantity',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.add_circle_outline),
+                                        onPressed: () async {
+                                          quantity++;
+                                          totalPrice = price * quantity;
+                                          await doc.reference.update({
+                                            'Quentity': quantity,
+                                            'TotalPrice': totalPrice,
+                                          });
+                                          final updatedSnapshot =
+                                              await FirebaseFirestore.instance
+                                                  .collection('CartItems')
+                                                  .where(
+                                                    'UserID',
+                                                    isEqualTo: user!.uid,
+                                                  )
+                                                  .get();
+                                          setState(() {
+                                            docs = updatedSnapshot.docs;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                          trailing:
+                              type == 'WishList'
+                                  ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () async {
                                           await FirebaseFirestore.instance
                                               .collection('CartItems')
-                                              .where(
-                                                'UserID',
-                                                isEqualTo: user!.uid,
-                                              )
-                                              .get();
-                                      setState(() {
-                                        docs = updatedSnapshot.docs;
-                                      });
-                                    }
-                                  },
-                                ),
-                                Text(
-                                  '$quantity',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.add_circle_outline),
-                                  onPressed: () async {
-                                    quantity++;
-                                    totalPrice = price * quantity;
-                                    await doc.reference.update({
-                                      'Quentity': quantity,
-                                      'TotalPrice': totalPrice,
-                                    });
-                                    final updatedSnapshot =
-                                        await FirebaseFirestore.instance
-                                            .collection('CartItems')
-                                            .where(
-                                              'UserID',
-                                              isEqualTo: user!.uid,
-                                            )
-                                            .get();
-                                    setState(() {
-                                      docs = updatedSnapshot.docs;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '₹${totalPrice.toStringAsFixed(2)}',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(width: 10),
-                        IconButton(
-                          icon: Icon(Icons.close, color: Colors.red),
-                          onPressed: () async {
-                            await doc.reference.delete();
-                            setState(() {
-                              docs.removeAt(index);
-                            });
-                          },
-                        ),
-                      ],
+                                              .add({
+                                                'UserID': user!.uid,
+                                                'ProductImage':
+                                                    data['ProductImage'],
+                                                'ProuductName':
+                                                    data['ProuductName'],
+                                                'Price': data['Price'],
+                                                'BrandID': data['BrandID'],
+                                                'CatID': data['CatID'],
+                                                'Quentity': 1,
+                                                'TotalPrice':
+                                                    double.tryParse(
+                                                      data['Price'].toString(),
+                                                    ) ??
+                                                    0.0,
+                                              });
+
+                                          await doc.reference.delete();
+
+                                          final updatedSnapshot =
+                                              await FirebaseFirestore.instance
+                                                  .collection('WishLish')
+                                                  .where(
+                                                    'UserID',
+                                                    isEqualTo: user.uid,
+                                                  )
+                                                  .get();
+
+                                          setState(() {
+                                            docs = updatedSnapshot.docs;
+                                          });
+                                        },
+                                        child: Text("Move to Cart"),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.green,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.close,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () async {
+                                          await doc.reference.delete();
+                                          setState(() {
+                                            docs.removeAt(index);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  )
+                                  : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '₹${totalPrice.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.close,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () async {
+                                          await doc.reference.delete();
+                                          setState(() {
+                                            docs.removeAt(index);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+
+                  // 🔽 ADDED CHECKOUT BUTTON
+                  if (type == 'cart')
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final currentUser = FirebaseAuth.instance.currentUser;
+
+                          if (currentUser != null) {
+                            final userId = currentUser.uid;
+                            final firestore = FirebaseFirestore.instance;
+
+                            // Fetch cart items first
+                            final cartQuery =
+                                await firestore
+                                    .collection('CartItems')
+                                    .where('UserID', isEqualTo: userId)
+                                    .get();
+
+                            final cartItems =
+                                cartQuery.docs
+                                    .map((doc) => {'id': doc.id, ...doc.data()})
+                                    .toList();
+
+                            // Navigate to checkout page with cart items
+                            Get.toNamed(
+                              'CheckoutPage',
+                              arguments: {
+                                'cartItems': cartItems,
+                                'userId': userId,
+                              },
+                            );
+                          }
+                        },
+
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Proceed to Checkout',
+
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             );
           },
@@ -260,154 +483,158 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Babyshophub'),
-        backgroundColor: AppConstants.buttonBg,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.home_outlined),
-            onPressed: () {
-              controller.selectedIndex.value = 0;
-              Get.toNamed('/mainPage');
-            },
-          ),
-          // IconButton(
-          //   icon: Icon(Icons.favorite_border),
-          //   onPressed: () => _openDrawer('wishlist'),
-          // ),
-          StreamBuilder<QuerySnapshot>(
-            stream:
-                FirebaseAuth.instance.currentUser != null
-                    ? FirebaseFirestore.instance
-                        .collection('WishList')
-                        .where(
-                          'UserID',
-                          isEqualTo: FirebaseAuth.instance.currentUser!.uid,
-                        )
-                        .snapshots()
-                    : Stream.empty(),
-            builder: (context, snapshot) {
-              int itemCount = 0;
-              if (snapshot.hasData) {
-                itemCount = snapshot.data!.docs.length;
-              }
+      appBar: CustomAppBar(selectedIndex: controller.selectedIndex),
 
-              return Stack(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.favorite_border),
-                    onPressed: () => _openDrawer('WishList'),
-                  ),
-                  if (itemCount > 0)
-                    Positioned(
-                      right: 6,
-                      top: 6,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        constraints: BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          '$itemCount',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
+      //  AppBar(
+      //   backgroundColor: AppConstants.buttonBg,
 
-          StreamBuilder<QuerySnapshot>(
-            stream:
-                FirebaseAuth.instance.currentUser != null
-                    ? FirebaseFirestore.instance
-                        .collection('CartItems')
-                        .where(
-                          'UserID',
-                          isEqualTo: FirebaseAuth.instance.currentUser!.uid,
-                        )
-                        .snapshots()
-                    : Stream.empty(),
-            builder: (context, snapshot) {
-              int itemCount = 0;
-              if (snapshot.hasData) {
-                itemCount = snapshot.data!.docs.length;
-              }
+      //   title: SvgPicture.network(
+      //     "https://images.ctfassets.net/dvf03q5b4rnw/6n4pfghgiGacCYkeg5M8Gc/aa0f131417aff2e41c11c963417ba548/babyshop_logo.svg?w=537&h=173&q=80", // SVG image URL
+      //     height: 40,
+      //     width: 40,
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //       icon: Icon(Icons.home_outlined),
+      //       onPressed: () {
+      //         controller.selectedIndex.value = 0;
+      //         Get.toNamed('/mainPage');
+      //       },
+      //     ),
 
-              return Stack(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.shopping_cart_outlined),
-                    onPressed: () => _openDrawer('cart'),
-                  ),
-                  if (itemCount > 0)
-                    Positioned(
-                      right: 6,
-                      top: 6,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        constraints: BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          '$itemCount',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-          Obx(() {
-            return sessionController.isLoggedIn.value
-                ? IconButton(
-                  icon: Icon(Icons.logout),
-                  onPressed: () {
-                    sessionController.logout();
-                    FirebaseAuth.instance.signOut();
-                    Get.snackbar(
-                      'Logged out',
-                      'You have been signed out.',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: AppConstants.buttonBg,
-                      colorText: Colors.white,
-                    );
-                    Get.toNamed('/Signup');
-                  },
-                )
-                : IconButton(
-                  icon: Icon(Icons.person_outline),
-                  onPressed: () {
-                    Future.delayed(Duration(milliseconds: 300), () {
-                      Get.toNamed('/Signup');
-                    });
-                  },
-                );
-          }),
-        ],
-      ),
+      //     StreamBuilder<QuerySnapshot>(
+      //       stream:
+      //           FirebaseAuth.instance.currentUser != null
+      //               ? FirebaseFirestore.instance
+      //                   .collection('WishList')
+      //                   .where(
+      //                     'UserID',
+      //                     isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+      //                   )
+      //                   .snapshots()
+      //               : Stream.empty(),
+      //       builder: (context, snapshot) {
+      //         int itemCount = 0;
+      //         if (snapshot.hasData) {
+      //           itemCount = snapshot.data!.docs.length;
+      //         }
+
+      //         return Stack(
+      //           children: [
+      //             IconButton(
+      //               icon: Icon(Icons.favorite_border),
+      //               onPressed: () => _openDrawer('WishList'),
+      //             ),
+      //             if (itemCount > 0)
+      //               Positioned(
+      //                 right: 6,
+      //                 top: 6,
+      //                 child: Container(
+      //                   padding: EdgeInsets.all(2),
+      //                   decoration: BoxDecoration(
+      //                     color: Colors.red,
+      //                     borderRadius: BorderRadius.circular(10),
+      //                   ),
+      //                   constraints: BoxConstraints(
+      //                     minWidth: 16,
+      //                     minHeight: 16,
+      //                   ),
+      //                   child: Text(
+      //                     '$itemCount',
+      //                     style: TextStyle(
+      //                       color: Colors.white,
+      //                       fontSize: 10,
+      //                       fontWeight: FontWeight.bold,
+      //                     ),
+      //                     textAlign: TextAlign.center,
+      //                   ),
+      //                 ),
+      //               ),
+      //           ],
+      //         );
+      //       },
+      //     ),
+
+      //     StreamBuilder<QuerySnapshot>(
+      //       stream:
+      //           FirebaseAuth.instance.currentUser != null
+      //               ? FirebaseFirestore.instance
+      //                   .collection('CartItems')
+      //                   .where(
+      //                     'UserID',
+      //                     isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+      //                   )
+      //                   .snapshots()
+      //               : Stream.empty(),
+      //       builder: (context, snapshot) {
+      //         int itemCount = 0;
+      //         if (snapshot.hasData) {
+      //           itemCount = snapshot.data!.docs.length;
+      //         }
+
+      //         return Stack(
+      //           children: [
+      //             IconButton(
+      //               icon: Icon(Icons.shopping_cart_outlined),
+      //               onPressed: () => _openDrawer('cart'),
+      //             ),
+      //             if (itemCount > 0)
+      //               Positioned(
+      //                 right: 6,
+      //                 top: 6,
+      //                 child: Container(
+      //                   padding: EdgeInsets.all(2),
+      //                   decoration: BoxDecoration(
+      //                     color: Colors.red,
+      //                     borderRadius: BorderRadius.circular(10),
+      //                   ),
+      //                   constraints: BoxConstraints(
+      //                     minWidth: 16,
+      //                     minHeight: 16,
+      //                   ),
+      //                   child: Text(
+      //                     '$itemCount',
+      //                     style: TextStyle(
+      //                       color: Colors.white,
+      //                       fontSize: 10,
+      //                       fontWeight: FontWeight.bold,
+      //                     ),
+      //                     textAlign: TextAlign.center,
+      //                   ),
+      //                 ),
+      //               ),
+      //           ],
+      //         );
+      //       },
+      //     ),
+      //     Obx(() {
+      //       return sessionController.isLoggedIn.value
+      //           ? IconButton(
+      //             icon: Icon(Icons.logout),
+      //             onPressed: () {
+      //               sessionController.logout();
+      //               FirebaseAuth.instance.signOut();
+      //               Get.snackbar(
+      //                 'Logged out',
+      //                 'You have been signed out.',
+      //                 snackPosition: SnackPosition.BOTTOM,
+      //                 backgroundColor: AppConstants.buttonBg,
+      //                 colorText: Colors.white,
+      //               );
+      //               Get.toNamed('/Signup');
+      //             },
+      //           )
+      //           : IconButton(
+      //             icon: Icon(Icons.person_outline),
+      //             onPressed: () {
+      //               Future.delayed(Duration(milliseconds: 300), () {
+      //                 Get.toNamed('/Signup');
+      //               });
+      //             },
+      //           );
+      //     }),
+      //   ],
+      // ),
       body: Obx(() {
         if (controller.selectedIndex.value == 0) {
           return SingleChildScrollView(
@@ -469,19 +696,35 @@ class _MainScreenState extends State<MainScreen> {
                             itemCount: filteredBrands.length,
                             itemBuilder: (context, index) {
                               final brand = filteredBrands[index];
-                              return Card(
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                margin: EdgeInsets.only(right: 16.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    brand['image']!,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
+
+                              return GestureDetector(
+                                onTap: () {
+                                  final brandName = brand['name'];
+                                  final brandId =
+                                      brand['id']; // will now be available
+                                  print(
+                                    "Tapped on brand: $brandName (ID: $brandId)",
+                                  );
+                                  Get.toNamed(
+                                    '/BrandsScreen',
+                                    arguments: {'brandId': brandId},
+                                  );
+                                },
+
+                                child: Card(
+                                  elevation: 5,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  margin: EdgeInsets.only(right: 16.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      brand['image']!,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               );
@@ -525,8 +768,7 @@ class _MainScreenState extends State<MainScreen> {
                         childAspectRatio: 3 / 4,
                       ),
                       itemBuilder: (context, index) {
-                        final categoryName =
-                            filteredCategories[index]; // Use filteredCategories
+                        final categoryName = filteredCategories[index];
                         final category = categories.firstWhere(
                           (category) =>
                               category['categoryName'] == categoryName,
@@ -560,8 +802,8 @@ class _MainScreenState extends State<MainScreen> {
                               Center(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    // print("Tapped on $name");
-                                    // print("Tapped on $id");
+                                    print("Tapped on $name");
+                                    print("Tapped on $id");
                                     Get.toNamed(
                                       '/ClothesScreen',
                                       arguments: {'categoryId': id},

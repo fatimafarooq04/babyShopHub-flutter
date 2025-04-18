@@ -1,1 +1,18 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"babyshophub-55389","appId":"1:473618040953:android:3c84b8d54504c370f26ca8","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"babyshophub-55389","configurations":{"android":"1:473618040953:android:3c84b8d54504c370f26ca8","ios":"1:473618040953:ios:aa25cf1bf653ebf0f26ca8","macos":"1:473618040953:ios:aa25cf1bf653ebf0f26ca8","web":"1:473618040953:web:c87bafd4d0204450f26ca8","windows":"1:473618040953:web:be6431f3ae229455f26ca8"}}}}}}
+{
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}
